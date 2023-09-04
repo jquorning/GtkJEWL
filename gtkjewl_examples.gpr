@@ -1,0 +1,16 @@
+with "gtkjewl.gpr";
+
+project GtkJEWL_Examples
+is
+	for Source_Dirs use ("examples/");
+	for Object_Dir  use ".object";
+	for Exec_Dir    use "binary/";
+	for Main use
+		("calculator.adb",  "currency_converter.adb",  "guess_me_2.adb",  "minipad.adb",
+       		 "pong2.adb",       "show_image2.adb",         "show_image.adb",  "sketch2_nolist.adb",
+		 "converter.adb",   "font_test.adb",           "guess_me.adb",    "multiline_test.adb",
+	      	 "pong.adb",        "show_image2_nolist.adb",  "sketch2.adb",     "sketch.adb"
+		);
+
+end GtkJEWL_Examples;
+	
