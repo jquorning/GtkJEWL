@@ -1,0 +1,179 @@
+<HTML>
+<HEAD>
+<!--
+
+  $Id: jewl.htm 1.6 2001/11/02 16:00:00 JE Exp JE $
+
+  $Log: jewl.htm $
+  Revision 1.6  2001/11/02 16:00:00  JE
+  * Fixed canvas bug when saving an empty canvas
+  * Restore with no prior save now acts as erase
+  * Removed redundant variable declaration in Image function
+
+  Revision 1.5  2001/08/22 15:00:00  JE
+  * Minor bugfix to Get_Text for combo boxes
+  * Minor changes to documentation (including new example involving dialogs)
+
+  Revision 1.4  2001/01/25 09:00:00  je
+  Changes visible to the user:
+
+  * Added support for drawing bitmaps on canvases (Draw_Image operations
+    and new type Image_Type)
+  * Added Play_Sound
+  * Added several new operations on all windows: Get_Origin, Get_Width,
+    Get_Height, Set_Origin, Set_Size and Focus
+  * Added several functions giving screen and window dimensions: Screen_Width,
+    Screen_Height, Frame_Width, Frame_Height, Dialog_Width, Dialog_Height and
+    Menu_Height
+  * Canvases can now handle keyboard events: new constructor and Key_Code added
+  * Added procedure Play_Sound
+  * Operations "+" and "-" added for Point_Type
+  * Pens can now be zero pixels wide
+  * The absolute origin of a frame can now have be specified when the frame
+    is created
+  * Added new File_Dialog operations Add_Filter and Set_Directory
+  * Added Get_Line renames to JEWL.IO for compatibility with Ada.Text_IO
+  * Added all the Get(File,Item) operations mentioned in documentation but
+    unaccountably missing :-(
+  * Documentation updated to reflect the above changes
+  * HTML versions of public package specifications added with links from
+    main documentation pages
+
+  Other internal changes:
+
+  * Canvas fonts, pens etc. now use JEWL.Reference_Counted_Type rather than
+    reinventing this particular wheel, as do images
+  * Various minor code formatting changes: some code reordered for clarity,
+    some comments added or amended,
+  * Changes introduced in 1.2 to support GNAT 3.10 have been reversed, since
+    GNAT 3.10 still couldn't compile this code correctly... ;-(
+
+  Outstanding issues:
+
+  * Optimisation breaks the code (workaround: don't optimise)
+
+-->
+<TITLE>JEWL package specification</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<H1 ALIGN=CENTER>JEWL package specification</H1>
+<PRE>
+------------------------------------------------------------------------------
+--                                                                          --
+--                                 J E W L                                  --
+--                                                                          --
+--   Top-level package in a hierarchy providing I/O and Windows facilities  --
+--   for beginners.                                                         --
+--                                                                          --
+--   Copyright (C) John English 2000. Contact address: je@brighton.ac.uk    --
+--   This software is released under the terms of the GNU General Public    --
+--   License and is intended primarily for educational use. Please contact  --
+--   the author to report bugs, suggestions and modifications.              --
+--                                                                          --
+------------------------------------------------------------------------------
+
+with Ada.Finalization;
+
+package JEWL is
+
+  ----------------------------------------------------------------------------
+  --
+  --                      S U P P O R T   T Y P E S
+  --
+  --  These types are used elsewhere throughout this package library:
+  --
+  --  Angle_Type      : an angle specified as an integral number of
+  --                    degrees (0 to 359)
+  --  Colour_Type     : a colour specified as an RGB value.
+  --  Font_Type       : a font specified by a name, point size and style
+  --                    options.
+  --  Point_Type      : a pair of (X,Y) coordinates within a window.
+  --  Point_List      : an array of (X,Y) coordinate pairs.
+  --
+  ----------------------------------------------------------------------------
+
+  type    <A NAME="Angle_Type-1"><B>Angle_Type</B></A>     is mod 360;
+  subtype <A NAME="Colour_Range-1"><B>Colour_Range</B></A>   is Integer range 0..255;
+  type    <A NAME="Colour_Type-1"><B>Colour_Type</B></A>    is record
+                              Red    : <A HREF="#Colour_Range-1">Colour_Range</A>;
+                              Green  : <A HREF="#Colour_Range-1">Colour_Range</A>;
+                              Blue   : <A HREF="#Colour_Range-1">Colour_Range</A>;
+                            end record;
+  type    <A NAME="Font_Type-1"><B>Font_Type</B></A> (Length : Natural)
+                         is record
+                              Name   : String (1..Length);
+                              Size   : Positive;
+                              Bold   : Boolean := False;
+                              Italic : Boolean := False;
+                            end record;
+
+  type    <A NAME="Point_Type-1"><B>Point_Type</B></A>     is record
+                              X,Y : Integer;
+                            end record;
+  type    <A NAME="Point_List-1"><B>Point_List</B></A>     is array (Positive range &lt;>) of <A HREF="#Point_Type-1">Point_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --        O P E R A T I O N S   O N   S U P P O R T   T Y P E S
+  --
+  --  Colour operations:
+  --    Light    : Generate a lightened version of a colour, e.g. Light(Red).
+  --    Dark     : Generate a darkened version of a colour, e.g. Dark(Green).
+  --
+  --  Font operations:
+  --    Font     : Generate a font with the specified properties.
+  --    Name     : Get the name of the font typeface.
+  --    Size     : Get the font size in points.
+  --    Bold     : Test if the font is bold.
+  --    Italic   : Test if the font is italic.
+  --
+  --  Point operations:
+  --    Endpoint : Calculate the endpoint of a line from a starting point,
+  --               length and angle.
+  --    Inside   : Test if a specified point is inside a specified rectangle
+  --               (defined by the coordinates of two diagonally opposite
+  --               corners).
+  --    P1 + P2  : Add two points (P1.X+P2.X, P1.Y+P2.Y).
+  --    P1 - P2  : Subtract two points (P1.X-P2.X, P1.Y-P2.Y).
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Light-1"><B>Light</B></A>    (Colour : <A HREF="#Colour_Type-1">Colour_Type</A>) return <A HREF="#Colour_Type-1">Colour_Type</A>;
+  function <A NAME="Dark-1"><B>Dark</B></A>     (Colour : <A HREF="#Colour_Type-1">Colour_Type</A>) return <A HREF="#Colour_Type-1">Colour_Type</A>;
+
+  function <A NAME="Font-1"><B>Font</B></A>     (Name   : String;
+                     Size   : Positive;
+                     Bold   : Boolean  := False;
+                     Italic : Boolean  := False)
+                                           return <A HREF="#Font_Type-1">Font_Type</A>;
+  function <A NAME="Name-1"><B>Name</B></A>     (Font   : <A HREF="#Font_Type-1">Font_Type</A>)   return String;
+  function <A NAME="Size-1"><B>Size</B></A>     (Font   : <A HREF="#Font_Type-1">Font_Type</A>)   return Natural;
+  function <A NAME="Bold-1"><B>Bold</B></A>     (Font   : <A HREF="#Font_Type-1">Font_Type</A>)   return Boolean;
+  function <A NAME="Italic-1"><B>Italic</B></A>   (Font   : <A HREF="#Font_Type-1">Font_Type</A>)   return Boolean;
+
+  function <A NAME="Endpoint-1"><B>Endpoint</B></A> (From   : <A HREF="#Point_Type-1">Point_Type</A>;
+                     Length : Positive;
+                     Angle  : <A HREF="#Angle_Type-1">Angle_Type</A>)  return <A HREF="#Point_Type-1">Point_Type</A>;
+  function <A NAME="Inside-1"><B>Inside</B></A>   (Point  : <A HREF="#Point_Type-1">Point_Type</A>;
+                     From   : <A HREF="#Point_Type-1">Point_Type</A>;
+                     To     : <A HREF="#Point_Type-1">Point_Type</A>)  return Boolean;
+  function <A NAME="Plus"><B>"+"</B></A>      (P1, P2 : <A HREF="#Point_Type-1">Point_Type</A>)  return <A HREF="#Point_Type-1">Point_Type</A>;
+  function <A NAME="Minus"><B>"-"</B></A>      (P1, P2 : <A HREF="#Point_Type-1">Point_Type</A>)  return <A HREF="#Point_Type-1">Point_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --  Renamings for our transatlantic cousins, in the hope that some day
+  --  they'll repay the favour/favor... ;-)
+  ----------------------------------------------------------------------------
+
+  subtype <A NAME="Color_Range-1"><B>Color_Range</B></A> is <A HREF="#Colour_Range-1">Colour_Range</A>;
+  subtype <A NAME="Color_Type-1"><B>Color_Type</B></A>  is <A HREF="#Colour_Type-1">Colour_Type</A>;
+
+private
+
+  -- implementation details
+
+end JEWL;
+</PRE>
+</BODY>
+</HTML>

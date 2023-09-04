@@ -1,0 +1,1520 @@
+<HTML>
+<HEAD>
+<!--
+
+  $Id: jewl-windows.htm 1.6 2001/11/02 16:00:00 JE Exp JE $
+
+  $Log: jewl-windows.htm $
+  Revision 1.6  2001/11/02 16:00:00  JE
+  * Fixed canvas bug when saving an empty canvas
+  * Restore with no prior save now acts as erase
+  * Removed redundant variable declaration in Image function
+
+  Revision 1.5  2001/08/22 15:00:00  JE
+  * Minor bugfix to Get_Text for combo boxes
+  * Minor changes to documentation (including new example involving dialogs)
+
+  Revision 1.4  2001/01/25 09:00:00  je
+  Changes visible to the user:
+
+  * Added support for drawing bitmaps on canvases (Draw_Image operations
+    and new type Image_Type)
+  * Added Play_Sound
+  * Added several new operations on all windows: Get_Origin, Get_Width,
+    Get_Height, Set_Origin, Set_Size and Focus
+  * Added several functions giving screen and window dimensions: Screen_Width,
+    Screen_Height, Frame_Width, Frame_Height, Dialog_Width, Dialog_Height and
+    Menu_Height
+  * Canvases can now handle keyboard events: new constructor and Key_Code added
+  * Added procedure Play_Sound
+  * Operations "+" and "-" added for Point_Type
+  * Pens can now be zero pixels wide
+  * The absolute origin of a frame can now have be specified when the frame
+    is created
+  * Added new File_Dialog operations Add_Filter and Set_Directory
+  * Added Get_Line renames to JEWL.IO for compatibility with Ada.Text_IO
+  * Added all the Get(File,Item) operations mentioned in documentation but
+    unaccountably missing :-(
+  * Documentation updated to reflect the above changes
+  * HTML versions of public package specifications added with links from
+    main documentation pages
+
+  Other internal changes:
+
+  * Canvas fonts, pens etc. now use JEWL.Reference_Counted_Type rather than
+    reinventing this particular wheel, as do images
+  * Various minor code formatting changes: some code reordered for clarity,
+    some comments added or amended,
+  * Changes introduced in 1.2 to support GNAT 3.10 have been reversed, since
+    GNAT 3.10 still couldn't compile this code correctly... ;-(
+
+  Outstanding issues:
+
+  * Optimisation breaks the code (workaround: don't optimise)
+
+-->
+<TITLE>JEWL.Windows package specification</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<H1 ALIGN=CENTER>JEWL.Windows package specification</H1>
+<PRE>
+------------------------------------------------------------------------------
+--                                                                          --
+--                         J E W L . W I N D O W S                          --
+--                                                                          --
+--   A package for developing GUI-based programs for beginners.             --
+--                                                                          --
+--   This is a large package, but splitting it into child packages would    --
+--   require multiple generic instantiations in order to use it.            --
+--                                                                          --
+--   Copyright (C) John English 2000. Contact address: je@brighton.ac.uk    --
+--   This software is released under the terms of the GNU General Public    --
+--   License and is intended primarily for educational use. Please contact  --
+--   the author to report bugs, suggestions and modifications.              --
+--                                                                          --
+------------------------------------------------------------------------------
+
+generic                         -- This is a generic package which must be
+  type <A NAME="Command_Type-1"><B>Command_Type</B></A> is (&lt;>);    -- instantiated with a list of possible
+                                -- command values to be generated whenever
+package JEWL.Windows is         -- a window is closed, a button is clicked
+                                -- or a menu item is selected.
+
+  ----------------------------------------------------------------------------
+  --  Miscellaneous operations
+  ----------------------------------------------------------------------------
+
+  procedure <A NAME="Show_Message-1"><B>Show_Message</B></A> (Text  : in String;   -- an information message
+                          Title : in String := "Message");
+  procedure <A NAME="Show_Error-1"><B>Show_Error</B></A>   (Text  : in String;   -- an error message
+                          Title : in String := "Error");
+  function  <A NAME="Show_Query-1"><B>Show_Query</B></A>   (Text  : in String;   -- a yes/no query
+                          Title : in String := "Query")
+                                return Boolean;
+
+  procedure <A NAME="Play_Sound-1"><B>Play_Sound</B></A>   (Sound : in String);  -- play a sound file
+
+  function  <A NAME="Screen_Width-1"><B>Screen_Width</B></A>  return Natural;      -- width of display screen
+  function  <A NAME="Screen_Height-1"><B>Screen_Height</B></A> return Natural;      -- height of display screen
+
+  ----------------------------------------------------------------------------
+  --
+  --                      S U P P O R T   T Y P E S
+  --
+  --  Except for Alignment_Type, these types are defined in the top-level
+  --  package JEWL and are renamed here for convenience:
+  --
+  --  Alignment_Type  : used to specify text alignment with a window.
+  --  Angle_Type      : an angle specified as an integral number of
+  --                    degrees (0 to 359)
+  --  Colour_Type     : a colour specified as an RGB value.
+  --  Font_Type       : a font specified by a name, point size and bold
+  --                    and italic style options.
+  --  Point_Type      : a pair of (X,Y) coordinates within a window.
+  --  Point_List      : an array of (X,Y) coordinate pairs.
+  --
+  ----------------------------------------------------------------------------
+
+  type    <A NAME="Alignment_Type-1"><B>Alignment_Type</B></A> is (Left, Centre, Right);
+  subtype <A NAME="Angle_Type-1"><B>Angle_Type</B></A>     is <A HREF="jewl.htm#Angle_Type-1">JEWL.Angle_Type</A>;
+  subtype <A NAME="Colour_Range-1"><B>Colour_Range</B></A>   is <A HREF="jewl.htm#Colour_Range-1">JEWL.Colour_Range</A>;
+  subtype <A NAME="Colour_Type-1"><B>Colour_Type</B></A>    is <A HREF="jewl.htm#Colour_Type-1">JEWL.Colour_Type</A>;
+  subtype <A NAME="Font_Type-1"><B>Font_Type</B></A>      is <A HREF="jewl.htm#Font_Type-1">JEWL.Font_Type</A>;
+  type    <A NAME="Image_Type-1"><B>Image_Type</B></A>     is private;
+  subtype <A NAME="Point_Type-1"><B>Point_Type</B></A>     is <A HREF="jewl.htm#Point_Type-1">JEWL.Point_Type</A>;
+  subtype <A NAME="Point_List-1"><B>Point_List</B></A>     is <A HREF="jewl.htm#Point_List-1">JEWL.Point_List</A>;
+
+  ----------------------------------------------------------------------------
+  --  Renamings for our transatlantic cousins, in the hope that some day
+  --  they'll repay the favour/favor... ;-)
+  ----------------------------------------------------------------------------
+
+  subtype  <A NAME="Color_Range-1"><B>Color_Range</B></A> is <A HREF="#Colour_Range-1">Colour_Range</A>;
+  subtype  <A NAME="Color_Type-1"><B>Color_Type</B></A>  is <A HREF="#Colour_Type-1">Colour_Type</A>;
+  function <A NAME="Center-1"><B>Center</B></A>      return <A HREF="#Alignment_Type-1">Alignment_Type</A> renames Centre;
+
+  ----------------------------------------------------------------------------
+  --
+  --        O P E R A T I O N S   O N   S U P P O R T   T Y P E S
+  --
+  --  These are renamings of the operations defined in the parent package
+  --  provided for convenience.
+  --
+  --  Colour operations:
+  --    Light    : Generate a lightened version of a colour, e.g. Light(Red).
+  --    Dark     : Generate a darkened version of a colour, e.g. Dark(Green).
+  --
+  --  Font operations:
+  --    Font     : Generate a font with the specified properties.
+  --    Name     : Get the name of the font typeface.
+  --    Size     : Get the font size in points.
+  --    Bold     : Test if the font is bold.
+  --    Italic   : Test if the font is italic.
+  --
+  --  Image operations:
+  --    Image    : Load an image from a bitmap file.
+  --    Valid    : Test if an image is valid.
+  --    Width    : Get the width of an image.
+  --    Height   : Get the height of an image.
+  --
+  --  Point operations:
+  --    Endpoint : Calculate the endpoint of a line from a starting point,
+  --               length and angle
+  --    Inside   : Test if a specified point is inside a specified rectangle
+  --               (defined by the coordinates of two diagonally opposite
+  --               corners).
+  --    P1 + P2  : Add two points (P1.X+P2.X, P1.Y+P2.Y).
+  --    P1 - P2  : Subtract two points (P1.X-P2.X, P1.Y-P2.Y).
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Light-1"><B>Light</B></A>    (Colour : <A HREF="jewl.htm#Colour_Type-1">JEWL.Colour_Type</A>) return  <A HREF="jewl.htm#Colour_Type-1">JEWL.Colour_Type</A>
+                                                renames <A HREF="jewl.htm#Light-1">JEWL.Light</A>;
+  function <A NAME="Dark-1"><B>Dark</B></A>     (Colour : <A HREF="jewl.htm#Colour_Type-1">JEWL.Colour_Type</A>) return  <A HREF="jewl.htm#Colour_Type-1">JEWL.Colour_Type</A>
+                                                renames <A HREF="jewl.htm#Dark-1">JEWL.Dark</A>;
+
+  function <A NAME="Font-1"><B>Font</B></A>     (Name   : String;
+                     Size   : Positive;
+                     Bold   : Boolean := False;
+                     Italic : Boolean := False) return  <A HREF="jewl.htm#Font_Type-1">JEWL.Font_Type</A>
+                                                renames <A HREF="jewl.htm#Font-1">JEWL.Font</A>;
+  function <A NAME="Name-1"><B>Name</B></A>     (Font   : <A HREF="#Font_Type-1">Font_Type</A>)        return String
+                                                renames <A HREF="jewl.htm#Name-1">JEWL.Name</A>;
+  function <A NAME="Size-1"><B>Size</B></A>     (Font   : <A HREF="#Font_Type-1">Font_Type</A>)        return Natural
+                                                renames <A HREF="jewl.htm#Size-1">JEWL.Size</A>;
+  function <A NAME="Bold-1"><B>Bold</B></A>     (Font   : <A HREF="#Font_Type-1">Font_Type</A>)        return Boolean
+                                                renames <A HREF="jewl.htm#Bold-1">JEWL.Bold</A>;
+  function <A NAME="Italic-1"><B>Italic</B></A>   (Font   : <A HREF="#Font_Type-1">Font_Type</A>)        return Boolean
+                                                renames <A HREF="jewl.htm#Italic-1">JEWL.Italic</A>;
+
+  function <A NAME="Image-1"><B>Image</B></A>    (Name   : String)           return <A HREF="#Image_Type-1">Image_Type</A>;
+  function <A NAME="Valid-1"><B>Valid</B></A>    (Image  : <A HREF="#Image_Type-1">Image_Type</A>)       return Boolean;
+  function <A NAME="Width-1"><B>Width</B></A>    (Image  : <A HREF="#Image_Type-1">Image_Type</A>)       return Natural;
+  function <A NAME="Height-1"><B>Height</B></A>   (Image  : <A HREF="#Image_Type-1">Image_Type</A>)       return Natural;
+
+  function <A NAME="Endpoint-1"><B>Endpoint</B></A> (From   : <A HREF="jewl.htm#Point_Type-1">JEWL.Point_Type</A>;
+                     Length : Positive;
+                     Angle  : <A HREF="jewl.htm#Angle_Type-1">JEWL.Angle_Type</A>)  return  <A HREF="jewl.htm#Point_Type-1">JEWL.Point_Type</A>
+                                                renames <A HREF="jewl.htm#Endpoint-1">JEWL.Endpoint</A>;
+  function <A NAME="Inside-1"><B>Inside</B></A>   (Point  : <A HREF="jewl.htm#Point_Type-1">JEWL.Point_Type</A>;
+                     From   : <A HREF="jewl.htm#Point_Type-1">JEWL.Point_Type</A>;
+                     To     : <A HREF="jewl.htm#Point_Type-1">JEWL.Point_Type</A>)  return  Boolean
+                                                renames <A HREF="jewl.htm#Inside-1">JEWL.Inside</A>;
+  function <A NAME="Plus"><B>"+"</B></A>      (P1, P2 : <A HREF="#Point_Type-1">Point_Type</A>)       return <A HREF="#Point_Type-1">Point_Type</A>
+                                                renames <A HREF="jewl.htm#Plus">JEWL."+"</A>;
+  function <A NAME="Minus"><B>"-"</B></A>      (P1, P2 : <A HREF="#Point_Type-1">Point_Type</A>)       return <A HREF="#Point_Type-1">Point_Type</A>
+                                                renames <A HREF="jewl.htm#Plus">JEWL."-"</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --             S U P P O R T   T Y P E   C O N S T A N T S
+  --
+  --  Angles  : North, South, East and West
+  --  Colours : Black, White, Red, Green, Blue, etc.
+  --  Fonts   : Default_Font (the default font for top-level windows) and
+  --            Parent_Font (the same font as a window's parent uses)
+  --
+  ----------------------------------------------------------------------------
+
+  <A NAME="North-1"><B>North</B></A>        : constant <A HREF="#Angle_Type-1">Angle_Type</A>  :=   0;
+  <A NAME="South-1"><B>South</B></A>        : constant <A HREF="#Angle_Type-1">Angle_Type</A>  := 180;
+  <A NAME="East-1"><B>East</B></A>         : constant <A HREF="#Angle_Type-1">Angle_Type</A>  :=  90;
+  <A NAME="West-1"><B>West</B></A>         : constant <A HREF="#Angle_Type-1">Angle_Type</A>  := 270;
+
+  <A NAME="Black-1"><B>Black</B></A>        : constant <A HREF="#Colour_Type-1">Colour_Type</A> := (  0,  0,  0);
+  <A NAME="White-1"><B>White</B></A>        : constant <A HREF="#Colour_Type-1">Colour_Type</A> := (255,255,255);
+  <A NAME="Red-1"><B>Red</B></A>          : constant <A HREF="#Colour_Type-1">Colour_Type</A> := (255,  0,  0);
+  <A NAME="Green-1"><B>Green</B></A>        : constant <A HREF="#Colour_Type-1">Colour_Type</A> := (  0,255,  0);
+  <A NAME="Blue-1"><B>Blue</B></A>         : constant <A HREF="#Colour_Type-1">Colour_Type</A> := (  0,  0,255);
+  <A NAME="Gray-1"><B>Gray</B></A>         : constant <A HREF="#Colour_Type-1">Colour_Type</A> := (128,128,128);
+  <A NAME="Yellow-1"><B>Yellow</B></A>       : constant <A HREF="#Colour_Type-1">Colour_Type</A> := (255,255,  0);
+  <A NAME="Cyan-1"><B>Cyan</B></A>         : constant <A HREF="#Colour_Type-1">Colour_Type</A> := (  0,255,255);
+  <A NAME="Magenta-1"><B>Magenta</B></A>      : constant <A HREF="#Colour_Type-1">Colour_Type</A> := (255,  0,255);
+
+  <A NAME="Default_Font-1"><B>Default_Font</B></A> : constant <A HREF="#Font_Type-1">Font_Type</A>   := Font("Arial",9);
+  <A NAME="Parent_Font-1"><B>Parent_Font</B></A>  : constant <A HREF="#Font_Type-1">Font_Type</A>   := Font("",1);
+
+  ----------------------------------------------------------------------------
+  --
+  --                        W I N D O W _ T Y P E
+  --
+  --  An abstract class providing basic behaviour which all windows share.
+  --
+  ----------------------------------------------------------------------------
+
+  type <A NAME="Window_Type-1"><B>Window_Type</B></A> is abstract tagged private;
+
+  <A NAME="Invalid_Window"><B>Invalid_Window</B></A> : exception;   -- raised if an attempt is made to use an
+                                -- invalid (non-open) window
+
+  ----------------------------------------------------------------------------
+  --
+  --  Window operations (common to all windows):
+  --
+  --  Show       (Window,   -- make the window visible or invisible depending
+  --              Visible)  -- on the value of Visible (default: True).
+  --  Hide       (Window)   -- make the window invisible.
+  --  Focus      (Window)   -- give the window the input focus.
+  --  Visible    (Window)   -- return True if the window is visible.
+  --  Get_Origin (Window)   -- get the origin (top left point) of the
+  --                        -- specified window.
+  --  Get_Width  (Window)   -- get the width of the specified window.
+  --  Get_Height (Window)   -- get the height of the specified window.
+  --  Set_Origin (Window,   -- set the origin (top left point) of the
+  --              Origin)   -- specified window to this value.
+  --  Set_Size   (Window,   -- set the size of the specified window
+  --              Width,    -- to this width (optional)
+  --              Height)   -- and this height (optional).
+  --  Get_Font   (Window)   -- get the font for the specified window.
+  --  Set_Font   (Window,   -- set the font for the specified window
+  --              Font)     -- to this one.
+  --
+  ----------------------------------------------------------------------------
+
+  procedure <A NAME="Show-1"><B>Show</B></A>       (Window  : in <A HREF="#Window_Type-1">Window_Type</A>;
+                        Visible : in Boolean := True);
+  procedure <A NAME="Hide-1"><B>Hide</B></A>       (Window  : in <A HREF="#Window_Type-1">Window_Type</A>);
+  procedure <A NAME="Focus-1"><B>Focus</B></A>      (Window  : in <A HREF="#Window_Type-1">Window_Type</A>);
+  function  <A NAME="Visible-1"><B>Visible</B></A>    (Window  : <A HREF="#Window_Type-1">Window_Type</A>) return Boolean;
+
+  function  <A NAME="Get_Origin-1"><B>Get_Origin</B></A> (Window  : <A HREF="#Window_Type-1">Window_Type</A>) return <A HREF="#Point_Type-1">Point_Type</A>;
+  function  <A NAME="Get_Width-1"><B>Get_Width</B></A>  (Window  : <A HREF="#Window_Type-1">Window_Type</A>) return Natural;
+  function  <A NAME="Get_Height-1"><B>Get_Height</B></A> (Window  : <A HREF="#Window_Type-1">Window_Type</A>) return Natural;
+
+  procedure <A NAME="Set_Origin-1"><B>Set_Origin</B></A> (Window  : in <A HREF="#Window_Type-1">Window_Type</A>;
+                        Origin  : in <A HREF="#Point_Type-1">Point_Type</A>);
+  procedure <A NAME="Set_Size-1"><B>Set_Size</B></A>   (Window  : in <A HREF="#Window_Type-1">Window_Type</A>;
+                        Width   : in Natural := 0;
+                        Height  : in Natural := 0);
+
+  function  <A NAME="Get_Font-1"><B>Get_Font</B></A>   (Window  : <A HREF="#Window_Type-1">Window_Type</A>) return <A HREF="#Font_Type-1">Font_Type</A>;
+  procedure <A NAME="Set_Font-1"><B>Set_Font</B></A>   (Window  : in <A HREF="#Window_Type-1">Window_Type</A>;
+                        Font    : in <A HREF="#Font_Type-1">Font_Type</A>);
+
+  ----------------------------------------------------------------------------
+  --
+  --                  W I N D O W   S U B C L A S S E S
+  --
+  --  The primary window subclasses are containers and controls.  They
+  --  share the behaviour common to all windows (above) and provide extra
+  --  behaviour as well.
+  --
+  --  Container_Type : the abstract base type for all containers.
+  --  Control_Type   : the abstract base type for all controls.
+  --
+  ----------------------------------------------------------------------------
+
+  type <A NAME="Container_Type-1"><B>Container_Type</B></A> is abstract new <A HREF="#Window_Type-1">Window_Type</A> with private;
+  type <A NAME="Control_Type-1"><B>Control_Type</B></A>   is abstract new <A HREF="#Window_Type-1">Window_Type</A> with private;
+
+  ----------------------------------------------------------------------------
+  --
+  --                         C O N T A I N E R S
+  --
+  --  Containers are windows which can contain other windows. All windows
+  --  except frames and dialogs (see below) must be contained within some
+  --  other container window. There are some restrictions on the types of
+  --  container that a window can be attached to (for example, a menu item
+  --  must be attached to a menu).
+  --
+  --  Most windows specify an origin, a width and a height whose coordinates
+  --  are taken relative to the enclosing container. Positive widths and
+  --  heights are absolute values, but zero and negative widths and heights
+  --  are interpreted as being relative to the width and height of the
+  --  enclosing container (so a width of 0 means the width of the enclosing
+  --  container, a height of -10 means 10 pixels less than the height of the
+  --  enclosing container).
+  --
+  --  The types of container windows available are as follows:
+  --
+  --  Frame_Type  : a main window with a title bar, system menu, minimise
+  --                and maximise buttons, and a close button.
+  --  Dialog_Type : a top level window which is used for modal interaction,
+  --                disabling other windows while the interaction takes
+  --                place.
+  --  Panel_Type  : a plain window which is used as a container for other
+  --                subwindows.
+  --  Menu_Type   : a menu which can contain menu items and submenus.
+  --
+  ----------------------------------------------------------------------------
+
+  type <A NAME="Frame_Type-1"><B>Frame_Type</B></A>  is new <A HREF="#Container_Type-1">Container_Type</A> with private;
+  type <A NAME="Dialog_Type-1"><B>Dialog_Type</B></A> is new <A HREF="#Container_Type-1">Container_Type</A> with private;
+  type <A NAME="Panel_Type-1"><B>Panel_Type</B></A>  is new <A HREF="#Container_Type-1">Container_Type</A> with private;
+  type <A NAME="Menu_Type-1"><B>Menu_Type</B></A>   is new <A HREF="#Container_Type-1">Container_Type</A> with private;
+
+  ----------------------------------------------------------------------------
+  --
+  --                             F R A M E S
+  --
+  --  A frame is a top level window with a title bar, system menu, minimise
+  --  and maximise buttons, and a close button. Closing a frame generates a
+  --  command. Frames are normally visible, but can be hidden if required.
+  --  A frame should be used as the main window for an application.
+  --
+  --  Frame operations:
+  --
+  --  Frame   (Origin,      -- create a frame at the specified position
+  --           Width,       -- with the specified width
+  --           Height,      -- and height in pixels,
+  --           Title,       -- with the specified title in the title bar,
+  --           Command,     -- generating this command when it is closed,
+  --           Font)        -- using this font (default: Default_Font).
+  --  Frame   (Width,       -- create a frame with the specified width
+  --           Height,      -- and height in pixels, placed randomly,
+  --           Title,       -- with the specified title in the title bar,
+  --           Command,     -- generating this command when it is closed,
+  --           Font)        -- using this font (default: Default_Font).
+  --
+  --  Close   (Frame)       -- close the frame.
+  --  Valid   (Frame)       -- true until the frame is closed.
+  --
+  --  Frame_Width           -- return the width of the frame border.
+  --  Frame_Height          -- return the height of the frame border.
+  --
+  --  Next_Command          -- return the next command generated by any
+  --                        -- control in any existing frame.
+  --  Command_Ready         -- test if there is a command pending
+  --
+  ----------------------------------------------------------------------------
+
+  function  <A NAME="Frame-1"><B>Frame</B></A>   (Origin  : <A HREF="#Point_Type-1">Point_Type</A>;
+                     Width   : Positive;
+                     Height  : Positive;
+                     Title   : String;
+                     Command : <A HREF="#Command_Type-1">Command_Type</A>;
+                     Font    : <A HREF="#Font_Type-1">Font_Type</A> := Default_Font) return <A HREF="#Frame_Type-1">Frame_Type</A>;
+  function  <A NAME="Frame-2"><B>Frame</B></A>   (Width   : Positive;
+                     Height  : Positive;
+                     Title   : String;
+                     Command : <A HREF="#Command_Type-1">Command_Type</A>;
+                     Font    : <A HREF="#Font_Type-1">Font_Type</A> := Default_Font) return <A HREF="#Frame_Type-1">Frame_Type</A>;
+
+  procedure <A NAME="Close-1"><B>Close</B></A>   (Frame   : in <A HREF="#Frame_Type-1">Frame_Type</A>);
+  function  <A NAME="Valid-2"><B>Valid</B></A>   (Frame   : <A HREF="#Frame_Type-1">Frame_Type</A>) return Boolean;
+
+  function  <A NAME="Frame_Width-1"><B>Frame_Width</B></A>   return Natural;
+  function  <A NAME="Frame_Height-1"><B>Frame_Height</B></A>  return Natural;
+
+  function  <A NAME="Next_Command-1"><B>Next_Command</B></A>  return <A HREF="#Command_Type-1">Command_Type</A>;
+  function  <A NAME="Command_Ready-1"><B>Command_Ready</B></A> return Boolean;
+
+  ----------------------------------------------------------------------------
+  --
+  --                            D I A L O G S
+  --
+  --  A dialog is a top level window like a frame, but it only has a close
+  --  button on its title bar. Dialogs are intended for user interaction.
+  --  When a dialog is executed it becomes visible and all other windows
+  --  are disabled. Execution of a dialog continues until a command is
+  --  generated by closing the dialog window or by clicking on a button
+  --  attached to the dialog. Dialog windows do not have a menu bar.
+  --
+  --  Dialog operations:
+  --
+  --  Dialog  (Width,       -- create a dialog with the given width and
+  --           Height,      -- and height in pixels,
+  --           Title,       -- with the specified title in the title bar,
+  --           Command,     -- generating this command when it is closed,
+  --           Font)        -- using this font (default: Default_Font).
+  --
+  --  Execute (Dialog)      -- execute a dialog and return the command code
+  --                        -- used to exit from it.
+  --
+  --  Dialog_Width          -- return the width of the dialog border.
+  --  Dialog_Height         -- return the height of the dialog border.
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Dialog-1"><B>Dialog</B></A>  (Width   : Positive;
+                    Height  : Positive;
+                    Title   : String;
+                    Command : <A HREF="#Command_Type-1">Command_Type</A>;
+                    Font    : <A HREF="#Font_Type-1">Font_Type</A> := Default_Font) return <A HREF="#Dialog_Type-1">Dialog_Type</A>;
+
+  function <A NAME="Execute-1"><B>Execute</B></A> (Dialog  : in <A HREF="#Dialog_Type-1">Dialog_Type</A>) return <A HREF="#Command_Type-1">Command_Type</A>;
+
+  function <A NAME="Dialog_Width-1"><B>Dialog_Width</B></A>   return Natural;
+  function <A NAME="Dialog_Height-1"><B>Dialog_Height</B></A>  return Natural;
+
+  ----------------------------------------------------------------------------
+  --
+  --                             P A N E L S
+  --
+  --
+  --  Panel operations:
+  --
+  --  Panel (Parent,        -- create a panel inside a parent container, with
+  --         Origin,        -- top left coordinates relative to the parent,
+  --         Width,         -- with the specified width
+  --         Height,        -- and the specified height, and
+  --         Title,         -- with this title on the border (default: none)
+  --         Font)          -- using this font (default: same as Parent).
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Panel-1"><B>Panel</B></A> (Parent : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                  Origin : <A HREF="#Point_Type-1">Point_Type</A>;
+                  Width  : Integer;
+                  Height : Integer;
+                  Title  : String := "";
+                  Font   : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font) return <A HREF="#Panel_Type-1">Panel_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --                              M E N U S
+  --
+  --  A menu is a pull-down list of items attached to a frame's menu bar.
+  --  The items on a menu are either menuitems (which generate a command
+  --  when they are selected, submenus (which display another menu when
+  --  selected) or separators (horizontal bars used to separate a menu
+  --  into subsections.
+  --
+  --  If the text label for a menu contains the character "&amp;", the character
+  --  which follows is underlined and the menu can be activated by pressing
+  --  Alt + that character. The character "&amp;" is not displayed.
+  --
+  --  Menu operations:
+  --
+  --  Menu (Parent,       -- create a menu attached to a frame or a menu
+  --        Text)         -- with the specified text label.
+  --
+  --  Menu_Height         -- return the height of a menu bar.
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Menu-1"><B>Menu</B></A>  (Parent : <A HREF="#Frame_Type-1">Frame_Type</A>'Class;
+                  Text   : String) return <A HREF="#Menu_Type-1">Menu_Type</A>;
+  function <A NAME="Menu-2"><B>Menu</B></A>  (Parent : <A HREF="#Menu_Type-1">Menu_Type</A>'Class;
+                  Text   : String) return <A HREF="#Menu_Type-1">Menu_Type</A>;
+
+  function <A NAME="Menu_Height-1"><B>Menu_Height</B></A>   return Natural;
+
+  ----------------------------------------------------------------------------
+  --
+  --                           C O N T R O L S
+  --
+  --  Controls are windows for user interaction. They hold values (e.g. a
+  --  text string) which can normally be set by the user, as well as being
+  --  accessed and altered by the program itself. Some controls (e.g. menu
+  --  items) generate command values which can be used to trigger actions
+  --  in the program. The following operations are common to all controls:
+  --
+  --  Enable  (Control,     -- enable or disable the control depending on
+  --           Enabled)     -- the value of Enabled (default: True).
+  --  Disable (Control)     -- disable the control.
+  --  Enabled (Control)     -- test if the control is enabled.
+  --
+  ----------------------------------------------------------------------------
+
+  procedure <A NAME="Enable-1"><B>Enable</B></A>  (Control : in <A HREF="#Control_Type-1">Control_Type</A>;
+                     Enabled : in Boolean := True);
+  procedure <A NAME="Disable-1"><B>Disable</B></A> (Control : in <A HREF="#Control_Type-1">Control_Type</A>);
+  function  <A NAME="Enabled-1"><B>Enabled</B></A> (Control : <A HREF="#Control_Type-1">Control_Type</A>) return Boolean;
+
+  ----------------------------------------------------------------------------
+  --
+  --  The types of control available are as follows:
+  --
+  --  Menuitem_Type     : controls which can appear on pull-down menus
+  --  Text_Control_Type : controls containing with a single-line text string
+  --  Multiline_Type    : controls containing multiple text strings
+  --  Canvas_Type       : a plain window for drawing arbitrary shapes on
+  --
+  ----------------------------------------------------------------------------
+
+  type <A NAME="Text_Control_Type-1"><B>Text_Control_Type</B></A>  is abstract new <A HREF="#Control_Type-1">Control_Type</A> with private;
+  type <A NAME="Multiline_Type-1"><B>Multiline_Type</B></A>     is abstract new <A HREF="#Control_Type-1">Control_Type</A> with private;
+  type <A NAME="Canvas_Type-1"><B>Canvas_Type</B></A>        is new <A HREF="#Control_Type-1">Control_Type</A> with private;
+
+  ----------------------------------------------------------------------------
+  --
+  --                      T E X T   C O N T R O L S
+  --
+  --  Text controls include a single-line text string. The following
+  --  operations are common to all text controls:
+  --
+  --  Get_Length (Control)  -- get the length of the text associated with the
+  --                        -- control.
+  --  Get_Text   (Control)  -- get the text associated with the control as a
+  --                        -- string of indefinite size.
+  --  Get_Text   (Control,  -- get the text associated with the control into
+  --              Text,     -- this fixed-size string variable
+  --              Length)   -- and set this integer variable to the actual
+  --                        -- number of characters copied.
+  --  Set_Text   (Control,  -- set the text associated with the control.
+  --              Text)     -- to the specified new text value.
+  --
+  ----------------------------------------------------------------------------
+
+  function  <A NAME="Get_Length-1"><B>Get_Length</B></A> (Control : <A HREF="#Text_Control_Type-1">Text_Control_Type</A>) return Natural;
+  function  <A NAME="Get_Text-1"><B>Get_Text</B></A>   (Control : <A HREF="#Text_Control_Type-1">Text_Control_Type</A>) return String;
+  procedure <A NAME="Get_Text-2"><B>Get_Text</B></A>   (Control : in  <A HREF="#Text_Control_Type-1">Text_Control_Type</A>;
+                        Text    : out String;
+                        Length  : out Natural);
+  procedure <A NAME="Set_Text-1"><B>Set_Text</B></A>   (Control : in  <A HREF="#Text_Control_Type-1">Text_Control_Type</A>;
+                        Text    : in  String);
+
+  ----------------------------------------------------------------------------
+  --
+  --  The types of text control available are as follows:
+  --
+  --  Button_Type      : a pushbutton which generates a command code.
+  --  Label_Type       : a static non-interactive label.
+  --  Editbox_Type     : a single-line edit control for text input.
+  --
+  --  There is a further subclass of text control, as follows:
+  --
+  --  Boolean_Control_Type : a text control with an associated Boolean state
+  --
+  ----------------------------------------------------------------------------
+
+  type <A NAME="Button_Type-1"><B>Button_Type</B></A>      is new <A HREF="#Text_Control_Type-1">Text_Control_Type</A> with private;
+  type <A NAME="Label_Type-1"><B>Label_Type</B></A>       is new <A HREF="#Text_Control_Type-1">Text_Control_Type</A> with private;
+  type <A NAME="Editbox_Type-1"><B>Editbox_Type</B></A>     is new <A HREF="#Text_Control_Type-1">Text_Control_Type</A> with private;
+
+  type <A NAME="Boolean_Control_Type-1"><B>Boolean_Control_Type</B></A> is abstract new <A HREF="#Text_Control_Type-1">Text_Control_Type</A> with private;
+
+  ----------------------------------------------------------------------------
+  --
+  --                            B U T T O N S
+  --
+  --  Buttons are rectangular labelled controls which generate a command
+  --  code when pressed. "Default" buttons are displayed with a heavier
+  --  border and respond when the Enter key is pressed.
+  --
+  --  Button operations:
+  --
+  --  Button (Parent,     -- create a button in a parent container, with
+  --          Origin,     -- top left coordinates relative to the parent,
+  --          Width,      -- with the specified width
+  --          Height,     -- and the specified height,
+  --          Text,       -- labelled with the specified text,
+  --          Command,    -- generating this command when it is pressed,
+  --          Default,    -- set up as a "default" button (default: False),
+  --          Font)       -- using this font (default: same as Parent).
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Button-1"><B>Button</B></A> (Parent  : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                   Origin  : <A HREF="#Point_Type-1">Point_Type</A>;
+                   Width   : Integer;
+                   Height  : Integer;
+                   Text    : String;
+                   Command : <A HREF="#Command_Type-1">Command_Type</A>;
+                   Default : Boolean := False;
+                   Font    : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font) return <A HREF="#Button_Type-1">Button_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --                             L A B E L S
+  --
+  --  A label is a static text control that can be used to label other
+  --  controls. Labels do not respond to user interaction, but their
+  --  values can be read and altered by the program in the same way as
+  --  any other text control.
+  --
+  --  Label operations:
+  --
+  --  Label (Parent,        -- create a label inside a container, with
+  --         Origin,        -- top left coordinates relative to the parent,
+  --         Width,         -- with the specified width
+  --         Height,        -- and the specified height, and
+  --         Text,          -- labelled with the specified text
+  --         Align,         -- aligned left, right or centre (default: Left),
+  --         Font)          -- using this font (default: same as Parent).
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Label-1"><B>Label</B></A> (Parent : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                  Origin : <A HREF="#Point_Type-1">Point_Type</A>;
+                  Width  : Integer;
+                  Height : Integer;
+                  Text   : String;
+                  Align  : <A HREF="#Alignment_Type-1">Alignment_Type</A> := Left;
+                  Font   : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font) return <A HREF="#Label_Type-1">Label_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --                          E D I T B O X E S
+  --
+  --  An editbox is a text control containing a single line of text whose
+  --  value can be edited by the user.
+  --
+  --  Editbox operations:
+  --
+  --  Editbox  (Parent,     -- create an editbox inside a container, with
+  --            Origin,     -- top left coordinates relative to the parent,
+  --            Width,      -- with the specified width
+  --            Height,     -- and the specified height, and
+  --            Text,       -- initialised with the specified text,
+  --            Password,   -- optionally set up as a password editbox,
+  --            Font)       -- using this font (default: same as Parent).
+  --
+  --  Modified (Editbox)    -- test if the editbox has been modified by the
+  --                        -- user.
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Editbox-1"><B>Editbox</B></A>  (Parent   : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                     Origin   : <A HREF="#Point_Type-1">Point_Type</A>;
+                     Width    : Integer;
+                     Height   : Integer;
+                     Text     : String    := "";
+                     Password : Boolean   := False;
+                     Font     : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font) return <A HREF="#Editbox_Type-1">Editbox_Type</A>;
+
+  function <A NAME="Modified-1"><B>Modified</B></A> (Editbox  : <A HREF="#Editbox_Type-1">Editbox_Type</A>) return Boolean;
+
+  ----------------------------------------------------------------------------
+  --
+  --                   B O O L E A N   C O N T R O L S
+  --
+  --  Boolean controls are text controls which can be toggled between two
+  --  states (checked or unchecked). The following operations are common
+  --  to all Boolean controls:
+  --
+  --  Get_State (Control)   -- get the current state of the control
+  --  Set_State (Control,   -- set the current state of the control
+  --             State)     -- to the specified value
+  --
+  ----------------------------------------------------------------------------
+
+  function  <A NAME="Get_State-1"><B>Get_State</B></A> (Control : <A HREF="#Boolean_Control_Type-1">Boolean_Control_Type</A>) return Boolean;
+  procedure <A NAME="Set_State-1"><B>Set_State</B></A> (Control : in <A HREF="#Boolean_Control_Type-1">Boolean_Control_Type</A>;
+                       State   : in Boolean);
+
+
+  ----------------------------------------------------------------------------
+  --
+  --  The types of Boolean controls available are as follows:
+  --
+  --  Checkbox_Type    : a checkbox which can be checked or unchecked.
+  --  Radiobutton_Type : a radio button which can be checked or unchecked.
+  --
+  ----------------------------------------------------------------------------
+
+  type <A NAME="Menuitem_Type-1"><B>Menuitem_Type</B></A>    is new <A HREF="#Boolean_Control_Type-1">Boolean_Control_Type</A> with private;
+  type <A NAME="Checkbox_Type-1"><B>Checkbox_Type</B></A>    is new <A HREF="#Boolean_Control_Type-1">Boolean_Control_Type</A> with private;
+  type <A NAME="Radiobutton_Type-1"><B>Radiobutton_Type</B></A> is new <A HREF="#Boolean_Control_Type-1">Boolean_Control_Type</A> with private;
+
+  ----------------------------------------------------------------------------
+  --
+  --                         M E N U   I T E M S
+  --
+  --  Menu items can only be attached to menus. When a menu is clicked, a
+  --  pull-down menu appears which can consist of menu items (which generate
+  --  a command when clicked) or further menus.
+  --
+  --  Each menu and menu item has a text label in which the character "&amp;"
+  --  is treated specially. "&amp;" will not be displayed, but the following
+  --  character (e.g. 'X') will be underlined to indicate that it can be
+  --  selected by pressing Alt + 'X' when the menu is visible.
+  --
+  --  Menuitem operations:
+  --
+  --  Menuitem  (Parent,    -- create a menu item attached to a parent menu
+  --             Text,      -- with this text label,
+  --             Command)   -- generating this command code when selected
+  --
+  --  Separator (Parent)    -- create a separator (an inactive horizontal
+  --                        -- bar) attached to a parent menu
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Menuitem-1"><B>Menuitem</B></A>  (Parent  : <A HREF="#Menu_Type-1">Menu_Type</A>'Class;
+                      Text    : String;
+                      Command : <A HREF="#Command_Type-1">Command_Type</A>)     return <A HREF="#Menuitem_Type-1">Menuitem_Type</A>;
+
+  function <A NAME="Separator-1"><B>Separator</B></A> (Parent  : <A HREF="#Menu_Type-1">Menu_Type</A>'Class)  return <A HREF="#Menuitem_Type-1">Menuitem_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --  Menu items behave slightly differently to other controls, so the
+  --  following operations are overridden:
+  --
+  procedure <A NAME="Enable-2"><B>Enable</B></A>     (Control : in <A HREF="#Menuitem_Type-1">Menuitem_Type</A>;
+                        Enabled : in Boolean := True);
+  function  <A NAME="Enabled-2"><B>Enabled</B></A>    (Control : <A HREF="#Menuitem_Type-1">Menuitem_Type</A>) return Boolean;
+  function  <A NAME="Get_Length-2"><B>Get_Length</B></A> (Control : <A HREF="#Menuitem_Type-1">Menuitem_Type</A>) return Natural;
+  function  <A NAME="Get_Text-3"><B>Get_Text</B></A>   (Control : <A HREF="#Menuitem_Type-1">Menuitem_Type</A>) return String;
+  procedure <A NAME="Set_Text-2"><B>Set_Text</B></A>   (Control : in <A HREF="#Menuitem_Type-1">Menuitem_Type</A>;
+                        Text    : in String);
+  function  <A NAME="Get_State-2"><B>Get_State</B></A>  (Control : <A HREF="#Menuitem_Type-1">Menuitem_Type</A>) return Boolean;
+  procedure <A NAME="Set_State-2"><B>Set_State</B></A>  (Control : in <A HREF="#Menuitem_Type-1">Menuitem_Type</A>;
+                        State   : in Boolean);
+
+  ----------------------------------------------------------------------------
+  --
+  --                         C H E C K B O X E S
+  --
+  --  A checkbox is a labelled control with a left-aligned box that can be
+  --  checked or unchecked. Clicking on a checkbox (or pressing Space when
+  --  it is selected) toggles the checkbox between the checked and unchecked
+  --  states.
+  --
+  --  Checkbox operations:
+  --
+  --  Checkbox  (Parent,    -- create a checkbox in a container, with
+  --             Origin,    -- top left coordinates relative to the parent,
+  --             Width,     -- with the specified width
+  --             Height,    -- and the specified height, and
+  --             Text,      -- labelled with the specified text, and
+  --             Checked,   -- set to this initial state (default: False),
+  --             Font)      -- using this font (default: same as Parent).
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Checkbox-1"><B>Checkbox</B></A> (Parent  : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                     Origin  : <A HREF="#Point_Type-1">Point_Type</A>;
+                     Width   : Integer;
+                     Height  : Integer;
+                     Text    : String;
+                     Checked : Boolean := False;
+                     Font    : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font) return <A HREF="#Checkbox_Type-1">Checkbox_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --                       R A D I O B U T T O N S
+  --
+  --  A radiobutton is a Boolean control with a left-aligned box that can be
+  --  checked or unchecked. Radiobuttons attached to the same container form
+  --  a group. Clicking on an unchecked radiobutton will set the radiobutton
+  --  to the checked state and will also uncheck the other radiobuttons which
+  --  belong to the same group (i.e. which are attached to the same container).
+  --  Unlike a checkbox, a radiobutton cannot be turned off by clicking on it;
+  --  you can only uncheck a radiobutton by checking another one in the same
+  --  group.
+  --
+  --  Radiobutton operations:
+  --
+  --  Radiobutton (Parent,      -- create a radiobutton in a container, with
+  --               Origin,      -- top left coordinates relative to the parent,
+  --               Width,       -- with the specified width
+  --               Height,      -- and the specified height, and
+  --               Text,        -- labelled with the specified text, and
+  --               Checked,     -- set to this initial state (default: False),
+  --               Font)        -- using this font (default: Default_Font).
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Radiobutton-1"><B>Radiobutton</B></A> (Parent  : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                        Origin  : <A HREF="#Point_Type-1">Point_Type</A>;
+                        Width   : Integer;
+                        Height  : Integer;
+                        Text    : String;
+                        Checked : Boolean := False;
+                        Font    : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font)
+                                                    return <A HREF="#Radiobutton_Type-1">Radiobutton_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --                 M U L T I L I N E   C O N T R O L S
+  --
+  --  Multiline controls contain multiple lines of text numbered from 1
+  --  upwards.  Individual lines can be accessed by specifying a line
+  --  number.  The user can select a particular line by clicking on it
+  --  with the mouse or using the keyboard arrow keys when the control
+  --  is selected.  Specifying the line number to access as 0 will access
+  --  the currently selected line.  If no line is selected, the current
+  --  line number will be reported as 0 but its contents can still be
+  --  accessed .  A Constraint_Error will be raised if an attempt is made
+  --  to access a line beyond the last one.
+  --
+  --  The following operations are common to all multiline controls, but
+  --  their precise effects vary slightly according to the actual type of
+  --  the control (see below):
+  --
+  --  Get_Count   (Control) -- get the number of lines of text in the control.
+  --  Get_Line    (Control) -- get the number of the currently selected line.
+  --  Get_Length  (Control, -- get the length of the specified line
+  --               Line)    -- (default: current line).
+  --  Get_Text    (Control, -- get the text of the specified line as a string
+  --               Line)    -- of indefinite length (default: current line).
+  --
+  --  Get_Text    (Control, -- get the text of the control
+  --               Line,    -- from the specified line (default: current line)
+  --               Text,    -- into a fixed-size string variable, together
+  --               Length)  -- with the number of characters transferred.
+  --  Set_Text    (Control, -- set the text of the control
+  --               Line,    -- at the specified line
+  --               Text)    -- to the specified value.
+  --
+  --  Select_Line (Control, -- select the line at the specified line number
+  --               Line)    -- (default: 0, meaning deselect).
+  --  Append_Line (Control, -- append a line to the end of the control, where
+  --               Text)    -- this is the text to append.
+  --  Insert_Line (Control, -- insert a new line above the specified
+  --               Line,    -- line number, where
+  --               Text)    -- this is the text to insert.
+  --  Delete_Line (Control, -- delete the specified line.
+  --               Line)
+  --  Delete_All  (Control) -- delete all lines.
+  --
+  ----------------------------------------------------------------------------
+
+  function  <A NAME="Get_Count-1"><B>Get_Count</B></A>   (Control : <A HREF="#Multiline_Type-1">Multiline_Type</A>) return Natural is abstract;
+  function  <A NAME="Get_Line-1"><B>Get_Line</B></A>    (Control : <A HREF="#Multiline_Type-1">Multiline_Type</A>) return Natural is abstract;
+  function  <A NAME="Get_Length-3"><B>Get_Length</B></A>  (Control : <A HREF="#Multiline_Type-1">Multiline_Type</A>;
+                         Line    : Natural := 0)   return Natural is abstract;
+  function  <A NAME="Get_Text-4"><B>Get_Text</B></A>    (Control : <A HREF="#Multiline_Type-1">Multiline_Type</A>;
+                         Line    : Natural := 0)   return String  is abstract;
+
+  procedure <A NAME="Get_Text-5"><B>Get_Text</B></A>    (Control : in  <A HREF="#Multiline_Type-1">Multiline_Type</A>;
+                         Line    : in  Natural := 0;
+                         Text    : out String;
+                         Length  : out Natural);
+  procedure <A NAME="Set_Text-3"><B>Set_Text</B></A>    (Control : in  <A HREF="#Multiline_Type-1">Multiline_Type</A>;
+                         Text    : in  String;
+                         Line    : in  Natural := 0)              is abstract;
+
+  procedure <A NAME="Select_Line-1"><B>Select_Line</B></A> (Control : in <A HREF="#Multiline_Type-1">Multiline_Type</A>;
+                         Line    : in Natural := 0)               is abstract;
+  procedure <A NAME="Append_Line-1"><B>Append_Line</B></A> (Control : in <A HREF="#Multiline_Type-1">Multiline_Type</A>;
+                         Text    : in String)                     is abstract;
+  procedure <A NAME="Insert_Line-1"><B>Insert_Line</B></A> (Control : in <A HREF="#Multiline_Type-1">Multiline_Type</A>;
+                         Text    : in String;
+                         Line    : in Natural := 0)               is abstract;
+  procedure <A NAME="Delete_Line-1"><B>Delete_Line</B></A> (Control : in <A HREF="#Multiline_Type-1">Multiline_Type</A>;
+                         Line    : in Natural := 0)               is abstract;
+  procedure <A NAME="Delete_All-1"><B>Delete_All</B></A>  (Control : in <A HREF="#Multiline_Type-1">Multiline_Type</A>)             is abstract;
+
+  ----------------------------------------------------------------------------
+  --
+  --  The types of multiline controls available are as follows:
+  --
+  --  Listbox_Type  : a list of text items in a scrollable window
+  --  Combobox_Type : an editbox in combination with a drop-down list box
+  --  Memo_Type     : a multi-line text editor
+  --
+  ----------------------------------------------------------------------------
+
+  type <A NAME="Listbox_Type-1"><B>Listbox_Type</B></A>  is new <A HREF="#Multiline_Type-1">Multiline_Type</A> with private;
+  type <A NAME="Combobox_Type-1"><B>Combobox_Type</B></A> is new <A HREF="#Multiline_Type-1">Multiline_Type</A> with private;
+  type <A NAME="Memo_Type-1"><B>Memo_Type</B></A>     is new <A HREF="#Multiline_Type-1">Multiline_Type</A> with private;
+
+  ----------------------------------------------------------------------------
+  --
+  --                          L I S T B O X E S
+  --
+  --  A listbox is a list of lines of text (initially empty). The lines are
+  --  sorted into ascending order by default, but can be left unsorted if
+  --  required. For a sorted list, the position at which a new line is added
+  --  will be ignored, with the new line being inserted at the appropriate
+  --  position according to its value. When no line has been selected, the
+  --  contents of the current line will be reported as an empty string ("").
+  --
+  --  Listbox operations:
+  --
+  --  Listbox (Parent,      -- create a listbox inside a container, with
+  --           Origin,      -- top left coordinates relative to the parent,
+  --           Width,       -- the specified width
+  --           Height,      -- and the specified height, using
+  --           Font)        -- this font (default: same as Parent).
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Listbox-1"><B>Listbox</B></A> (Parent : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                    Origin : <A HREF="#Point_Type-1">Point_Type</A>;
+                    Width  : Integer;
+                    Height : Integer;
+                    Font   : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font) return <A HREF="#Listbox_Type-1">Listbox_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --                         C O M B O B O X E S
+  --
+  --  A combobox consists of an edit control together with a drop-down list
+  --  (effectively a combination of an editbox and a listbox). The currently
+  --  selected line is displayed in the edit control, and you can specify
+  --  whether the user is able to manually edit this value. If not, only
+  --  the values in the drop-down list can be selected.
+  --
+  --  If the contents of the edit control match one of the values in the list,
+  --  the position of the corresponding line in the list is reported as the
+  --  number of the currently selected line. Otherwise, the number of the
+  --  current line is reported as 0. Accessing the value of the current line
+  --  (line 0) will report the current value of the edit control.
+  --
+  --  Combobox operations:
+  --
+  --  Combobox (Parent,     -- create a combobox inside a container, with
+  --            Origin,     -- top left coordinates relative to the parent,
+  --            Width,      -- with the specified width, whose value can
+  --            Editable,   -- be manually edited (default: True),
+  --            Font)       -- using this font (default: same as Parent).
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Combobox-1"><B>Combobox</B></A> (Parent   : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                     Origin   : <A HREF="#Point_Type-1">Point_Type</A>;
+                     Width    : Integer;
+                     Editable : Boolean := True;
+                     Font     : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font) return <A HREF="#Combobox_Type-1">Combobox_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --                              M E M O S
+  --
+  --  A memo is a simple multi-line text editor similar to Windows Notepad.
+  --  There are several memo-specific operations in addition to the standard
+  --  operations on multi-line controls. The user can select a block of text
+  --  spanning multiple lines using the mouse (or by moving the cursor with
+  --  the Shift key held down) and there are operations to fetch, replace
+  --  and delete the selected text, find the line and column position of
+  --  the start and end of the selected text, and get its total length (which
+  --  will include one or more additional end-of-line characters if the text
+  --  spans more than one line).
+  --
+  --  Memo operations:
+  --
+  --  Memo (Parent,           -- create a memo inside a container, with
+  --        Origin,           -- top left coordinates relative to the parent,
+  --        Width,            -- the specified width
+  --        Height)           -- and the specified height
+  --        Font)             -- using this font (default: same as Parent).
+  --
+  --  Get_Column      (Memo)  -- get the column position of the current
+  --                          -- selection.
+  --  Modified        (Memo)  -- test if the user has modified the memo.
+  --  Cut_Selection   (Memo)  -- cut the current selection to the clipboard.
+  --  Copy_Selection  (Memo)  -- copy the current selection to the clipboard.
+  --  Paste_Selection (Memo)  -- paste the clipboard contents to the memo,
+  --                          -- replacing the current selection.
+  --  Undo_Change     (Memo)  -- undo the user's last change to the memo.
+  --  Show_Selection  (Memo)  -- scroll the memo so that the current position
+  --                          -- is visible on the screen.
+  --
+  ----------------------------------------------------------------------------
+
+  function  <A NAME="Memo-1"><B>Memo</B></A> (Parent : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                  Origin : <A HREF="#Point_Type-1">Point_Type</A>;
+                  Width  : Integer;
+                  Height : Integer;
+                  Font   : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font) return <A HREF="#Memo_Type-1">Memo_Type</A>;
+
+  function  <A NAME="Get_Column-1"><B>Get_Column</B></A>      (Memo : <A HREF="#Memo_Type-1">Memo_Type</A>) return Natural;
+  function  <A NAME="Modified-2"><B>Modified</B></A>        (Memo : <A HREF="#Memo_Type-1">Memo_Type</A>) return Boolean;
+  procedure <A NAME="Cut_Selection-1"><B>Cut_Selection</B></A>   (Memo : in <A HREF="#Memo_Type-1">Memo_Type</A>);
+  procedure <A NAME="Copy_Selection-1"><B>Copy_Selection</B></A>  (Memo : in <A HREF="#Memo_Type-1">Memo_Type</A>);
+  procedure <A NAME="Paste_Selection-1"><B>Paste_Selection</B></A> (Memo : in <A HREF="#Memo_Type-1">Memo_Type</A>);
+  procedure <A NAME="Undo_Change-1"><B>Undo_Change</B></A>     (Memo : in <A HREF="#Memo_Type-1">Memo_Type</A>);
+  procedure <A NAME="Show_Selection-1"><B>Show_Selection</B></A>  (Memo : in <A HREF="#Memo_Type-1">Memo_Type</A>);
+
+  ----------------------------------------------------------------------------
+  --  Most operations on multiline types are implemented in different ways,
+  --  so they are overridden here:
+  --
+  function  <A NAME="Get_Count-2"><B>Get_Count</B></A>   (Control : <A HREF="#Listbox_Type-1">Listbox_Type</A>)  return Natural;
+  function  <A NAME="Get_Count-3"><B>Get_Count</B></A>   (Control : <A HREF="#Combobox_Type-1">Combobox_Type</A>) return Natural;
+  function  <A NAME="Get_Count-4"><B>Get_Count</B></A>   (Control : <A HREF="#Memo_Type-1">Memo_Type</A>)     return Natural;
+
+  function  <A NAME="Get_Line-2"><B>Get_Line</B></A>    (Control : <A HREF="#Listbox_Type-1">Listbox_Type</A>)  return Natural;
+  function  <A NAME="Get_Line-3"><B>Get_Line</B></A>    (Control : <A HREF="#Combobox_Type-1">Combobox_Type</A>) return Natural;
+  function  <A NAME="Get_Line-4"><B>Get_Line</B></A>    (Control : <A HREF="#Memo_Type-1">Memo_Type</A>)     return Natural;
+
+  function  <A NAME="Get_Length-4"><B>Get_Length</B></A>  (Control : <A HREF="#Listbox_Type-1">Listbox_Type</A>;
+                         Line    : Natural := 0)  return Natural;
+  function  <A NAME="Get_Length-5"><B>Get_Length</B></A>  (Control : <A HREF="#Combobox_Type-1">Combobox_Type</A>;
+                         Line    : Natural := 0)  return Natural;
+  function  <A NAME="Get_Length-6"><B>Get_Length</B></A>  (Control : <A HREF="#Memo_Type-1">Memo_Type</A>;
+                         Line    : Natural := 0)  return Natural;
+
+  function  <A NAME="Get_Text-6"><B>Get_Text</B></A>    (Control : <A HREF="#Listbox_Type-1">Listbox_Type</A>;
+                         Line    : Natural := 0)  return String;
+  function  <A NAME="Get_Text-7"><B>Get_Text</B></A>    (Control : <A HREF="#Combobox_Type-1">Combobox_Type</A>;
+                         Line    : Natural := 0)  return String;
+  function  <A NAME="Get_Text-8"><B>Get_Text</B></A>    (Control : <A HREF="#Memo_Type-1">Memo_Type</A>;
+                         Line    : Natural := 0)  return String;
+
+  procedure <A NAME="Set_Text-4"><B>Set_Text</B></A>    (Control : in  <A HREF="#Listbox_Type-1">Listbox_Type</A>;
+                         Text    : in  String;
+                         Line    : in  Natural := 0);
+  procedure <A NAME="Set_Text-5"><B>Set_Text</B></A>    (Control : in  <A HREF="#Combobox_Type-1">Combobox_Type</A>;
+                         Text    : in  String;
+                         Line    : in  Natural := 0);
+  procedure <A NAME="Set_Text-6"><B>Set_Text</B></A>    (Control : in  <A HREF="#Memo_Type-1">Memo_Type</A>;
+                         Text    : in  String;
+                         Line    : in  Natural := 0);
+
+  procedure <A NAME="Select_Line-2"><B>Select_Line</B></A> (Control : in  <A HREF="#Listbox_Type-1">Listbox_Type</A>;
+                         Line    : in  Natural := 0);
+  procedure <A NAME="Select_Line-3"><B>Select_Line</B></A> (Control : in  <A HREF="#Combobox_Type-1">Combobox_Type</A>;
+                         Line    : in  Natural := 0);
+  procedure <A NAME="Select_Line-4"><B>Select_Line</B></A> (Control : in  <A HREF="#Memo_Type-1">Memo_Type</A>;
+                         Line    : in  Natural := 0);
+
+  procedure <A NAME="Append_Line-2"><B>Append_Line</B></A> (Control : in <A HREF="#Listbox_Type-1">Listbox_Type</A>;
+                         Text    : in String);
+  procedure <A NAME="Append_Line-3"><B>Append_Line</B></A> (Control : in <A HREF="#Combobox_Type-1">Combobox_Type</A>;
+                         Text    : in String);
+  procedure <A NAME="Append_Line-4"><B>Append_Line</B></A> (Control : in <A HREF="#Memo_Type-1">Memo_Type</A>;
+                         Text    : in String);
+
+  procedure <A NAME="Insert_Line-2"><B>Insert_Line</B></A> (Control : in <A HREF="#Listbox_Type-1">Listbox_Type</A>;
+                         Text    : in String;
+                         Line    : in Natural := 0);
+  procedure <A NAME="Insert_Line-3"><B>Insert_Line</B></A> (Control : in <A HREF="#Combobox_Type-1">Combobox_Type</A>;
+                         Text    : in String;
+                         Line    : in Natural := 0);
+  procedure <A NAME="Insert_Line-4"><B>Insert_Line</B></A> (Control : in <A HREF="#Memo_Type-1">Memo_Type</A>;
+                         Text    : in String;
+                         Line    : in Natural := 0);
+
+  procedure <A NAME="Delete_Line-2"><B>Delete_Line</B></A> (Control : in <A HREF="#Listbox_Type-1">Listbox_Type</A>;
+                         Line    : in Natural := 0);
+  procedure <A NAME="Delete_Line-3"><B>Delete_Line</B></A> (Control : in <A HREF="#Combobox_Type-1">Combobox_Type</A>;
+                         Line    : in Natural := 0);
+  procedure <A NAME="Delete_Line-4"><B>Delete_Line</B></A> (Control : in <A HREF="#Memo_Type-1">Memo_Type</A>;
+                         Line    : in Natural:= 0);
+
+  procedure <A NAME="Delete_All-2"><B>Delete_All</B></A>  (Control : in <A HREF="#Listbox_Type-1">Listbox_Type</A>);
+  procedure <A NAME="Delete_All-3"><B>Delete_All</B></A>  (Control : in <A HREF="#Combobox_Type-1">Combobox_Type</A>);
+  procedure <A NAME="Delete_All-4"><B>Delete_All</B></A>  (Control : in <A HREF="#Memo_Type-1">Memo_Type</A>);
+
+  ----------------------------------------------------------------------------
+  --
+  --                           C A N V A S E S
+  --
+  --  A canvas is a blank rectangle for drawing on which can optionally
+  --  be set to generate a command code when the mouse is clicked on it.
+  --  A canvas has an associated font (the same as the parent window by
+  --  default), a background colour (initially white), a pen for drawing
+  --  lines (initially black, one pixel wide) and a fill colour used to
+  --  colour closed shapes (initially white).
+  --
+  --  The freedom of expression available with canvases make these the
+  --  most complex component of all, with over 20 available operations.
+  --  There are operations to draw lines, rectangles (with or without
+  --  rounded corners), ellipses, circles, line sequences, polygons and
+  --  text. The font, pen size and colour and fill colour can be changed
+  --  at any time any will affect all subsequent drawing operations (but
+  --  everything drawn previously will be unaffected). Rectangles can be
+  --  given rounded corners by specifying a rounding factor, which gives
+  --  the X and Y offsets from the corners to the points where the rounded
+  --  corner begins.
+  --
+  --  Anything drawn on a canvas will normally stay there, but the canvas
+  --  can be erased or the current state of a drawing can be saved and then
+  --  restored later (which provides a basic "undo" facility). For example,
+  --  a clock can be drawn by drawing a circle, saving the drawing, and then
+  --  drawing the hands. To change the position of the hands, restore the
+  --  saved drawing (thus erasing the hands) and then redraw the hands in
+  --  the new position. You can only save one copy of the drawing, so if you
+  --  save it a second time you will lose the previous saved copy.
+  --
+  --  A canvas can be set up to generate a command when the mouse button
+  --  is pressed inside its borders. There are operations to get the
+  --  position at which the button was pressed, to get the current mouse
+  --  position, and to test if the mouse button is still down and whether
+  --  the mouse has been moved. As long as the button is down, the mouse
+  --  position will be tracked even if the mouse is moved outside the canvas.
+  --  You can track the mouse visually by saving the drawing when the mouse
+  --  is first pressed, then restoring the drawing and drawing a new line
+  --  from the initial mouse position to the current one.
+  --
+  --  Canvas operations:
+  --
+  --  Canvas  (Parent,            -- create a canvas inside a container, with
+  --           Origin,            -- top left coordinates relative to Parent,
+  --           Width,             -- the specified width
+  --           Height,            -- and the specified height, using
+  --           Font)              -- this font (default: same as Parent).
+  --
+  --  Canvas  (Parent,            -- create a canvas inside a container, with
+  --           Origin,            -- top left coordinates relative to the parent,
+  --           Width,             -- the specified width
+  --           Height,            -- and the specified height,
+  --           Command,           -- which generates this command code, and
+  --           Font)              -- uses this font (default: same as Parent).
+  --
+  --  Canvas  (Parent,            -- create a canvas inside a container, with
+  --           Origin,            -- top left coordinates relative to the parent,
+  --           Width,             -- the specified width
+  --           Height,            -- and the specified height,
+  --           Command,           -- which generates this command code, and
+  --           Keypress,          -- this one when a key is pressed, and
+  --           Font)              -- uses this font (default: same as Parent).
+  --
+  --  Set_Colour     (Canvas,     -- set the background colour for a canvas
+  --                  Colour)     -- using this colour (default: white)
+  --
+  --  Erase          (Canvas)     -- erase the drawing in a canvas. This will
+  --                              -- also erase any saved drawing.
+  --  Save           (Canvas)     -- save the current drawing.
+  --  Restore        (Canvas)     -- restore a saved drawing, erasing anything
+  --                              -- drawn since. If the drawing has never been
+  --                              -- saved, or the window has been erased using
+  --                              -- Erase, this will do nothing.
+  --  Set_Font       (Canvas,     -- set a new font for all subsequent text
+  --                  Font)       -- drawn on the canvas.
+  --  Set_Pen        (Canvas,     -- set the pen used to draw lines on the
+  --                  Colour,     -- canvas to this colour (default: black)
+  --                  Width)      -- and thickness (default: 1 pixel).
+  --  Set_Fill       (Canvas,     -- set the colour used to fill subsequent
+  --                  Colour)     -- closed shapes drawn on the canvas.
+  --  Set_Fill       (Canvas)     -- clear the colour used to fill subsequent
+  --                              -- closed shapes drawn on the canvas.
+  --  Draw_Text      (Canvas,     -- draw a text string on the canvas
+  --                  From,       -- from this top-left point, where
+  --                  Text)       -- this is the text to be drawn.
+  --  Draw_Text      (Canvas,     -- draw a text string on the canvas
+  --                  From,       -- in a rectangle between this point
+  --                  To,         -- and this one, where
+  --                  Text,       -- this is the text to be drawn
+  --                  Align)      -- with this alignment (default: left).
+  --  Draw_Text      (Canvas,     -- draw a text string on the canvas
+  --                  From,       -- in a rectangle starting at this point
+  --                  Width,      -- with this width
+  --                  Height,     -- and this height, where
+  --                  Text,       -- this is the text to be drawn
+  --                  Align)      -- with this alignment (default: left).
+  --
+  --  Draw_Line      (Canvas,     -- draw a line on the canvas
+  --                  From,       -- from this point
+  --                  To)         -- to this one.
+  --  Draw_Line      (Canvas,     -- draw a line on the canvas
+  --                  From,       -- from this point
+  --                  Length,     -- for this length
+  --                  Angle)      -- at this angle.
+  --  Draw_Line_List (Canvas,     -- draw lines on the canvas connecting
+  --                  Points)     -- the points in this list.
+  --
+  --  Draw_Rectangle (Canvas,     -- draw a rectangle on the canvas
+  --                  From,       -- from this corner point
+  --                  To,         -- to this diagonally-opposite point
+  --                  Rounding)   -- with corners rounded this much
+  --                              -- (default: no rounding).
+  --  Draw_Rectangle (Canvas,     -- draw a rectangle on the canvas
+  --                  From,       -- from this top-left point
+  --                  Width,      -- with this width
+  --                  Height,     -- and this height
+  --                  Rounding)   -- with corners rounded this much
+  --                              -- (default: no rounding).
+  --
+  --  Draw_Ellipse   (Canvas,     -- draw an ellipse on the canvas
+  --                  From,       -- bounded by a rectangle from this point
+  --                  To)         -- to this point.
+  --  Draw_Ellipse   (Canvas,     -- draw an ellipse on the canvas
+  --                  From,       -- bounded by a rectangle from this point
+  --                  Width,      -- with this width.
+  --                  Height)     -- and this height
+  --  Draw_Circle    (Canvas,     -- draw a circle on the canvas
+  --                  Centre,     -- with this centre point
+  --                  Radius)     -- and this radius.
+  --
+  --  Draw_Polygon   (Canvas,     -- draw a polygon on the canvas
+  --                  Points)     -- with vertices at these points.
+  --
+  --  Draw_Image     (Canvas,     -- draw an image on the canvas
+  --                  From,       -- from this point
+  --                  Image)      -- using this image object.
+  --  Draw_Image     (Canvas,     -- draw an image on the canvas
+  --                  From,       -- from this point
+  --                  To,         -- to this one (stretching the image to fit)
+  --                  Image)      -- using this image object.
+  --  Draw_Image     (Canvas,     -- draw an image on the canvas
+  --                  From,       -- from this point
+  --                  Width,      -- with this width
+  --                  Height,     -- and this height
+  --                  Image)      -- using this image object.
+  --
+  --  Mouse_Down     (Canvas)     -- test if the left mouse button is down.
+  --  Mouse_Moved    (Canvas)     -- test if the mouse has been moved.
+  --  Start_Point    (Canvas)     -- get the point where the mouse button
+  --                              -- was first pressed.
+  --  End_Point      (Canvas)     -- get the point where the mouse is now
+  --                              -- (or its final position when the left
+  --                              -- button was released).
+  --  Key_Code       (Canvas)     -- get the character code for the last
+  --                              -- key pressed.
+  --
+  ----------------------------------------------------------------------------
+
+  function <A NAME="Canvas-1"><B>Canvas</B></A> (Parent   : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                   Origin   : <A HREF="#Point_Type-1">Point_Type</A>;
+                   Width    : Integer;
+                   Height   : Integer;
+                   Font     : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font) return <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+
+  function <A NAME="Canvas-2"><B>Canvas</B></A> (Parent   : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                   Origin   : <A HREF="#Point_Type-1">Point_Type</A>;
+                   Width    : Integer;
+                   Height   : Integer;
+                   Command  : <A HREF="#Command_Type-1">Command_Type</A>;
+                   Font     : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font) return <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+
+  function <A NAME="Canvas-3"><B>Canvas</B></A> (Parent   : <A HREF="#Container_Type-1">Container_Type</A>'Class;
+                   Origin   : <A HREF="#Point_Type-1">Point_Type</A>;
+                   Width    : Integer;
+                   Height   : Integer;
+                   Command  : <A HREF="#Command_Type-1">Command_Type</A>;
+                   Keypress : <A HREF="#Command_Type-1">Command_Type</A>;
+                   Font     : <A HREF="#Font_Type-1">Font_Type</A> := Parent_Font) return <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+
+  procedure <A NAME="Set_Colour-1"><B>Set_Colour</B></A> (Canvas : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        Colour : in <A HREF="#Colour_Type-1">Colour_Type</A> := White);
+
+  procedure <A NAME="Erase-1"><B>Erase</B></A>      (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>);
+  procedure <A NAME="Save-1"><B>Save</B></A>       (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>);
+  procedure <A NAME="Restore-1"><B>Restore</B></A>    (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>);
+
+  procedure <A NAME="Set_Font-2"><B>Set_Font</B></A>   (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        Font     : in <A HREF="#Font_Type-1">Font_Type</A>);
+  procedure <A NAME="Set_Pen-1"><B>Set_Pen</B></A>    (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        Colour   : in <A HREF="#Colour_Type-1">Colour_Type</A> := Black;
+                        Width    : in Natural     := 1);
+  procedure <A NAME="Set_Fill-1"><B>Set_Fill</B></A>   (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        Colour   : in <A HREF="#Colour_Type-1">Colour_Type</A>);
+  procedure <A NAME="Set_Fill-2"><B>Set_Fill</B></A>   (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>);
+
+  procedure <A NAME="Draw_Text-1"><B>Draw_Text</B></A>  (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        Text     : in String);
+  procedure <A NAME="Draw_Text-2"><B>Draw_Text</B></A>  (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        To       : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        Text     : in String;
+                        Align    : in <A HREF="#Alignment_Type-1">Alignment_Type</A> := Left);
+  procedure <A NAME="Draw_Text-3"><B>Draw_Text</B></A>  (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        Width    : in Integer;
+                        Height   : in Integer;
+                        Text     : in String;
+                        Align    : in <A HREF="#Alignment_Type-1">Alignment_Type</A> := Left);
+
+  procedure <A NAME="Draw_Line-1"><B>Draw_Line</B></A>  (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        To       : in <A HREF="#Point_Type-1">Point_Type</A>);
+  procedure <A NAME="Draw_Line-2"><B>Draw_Line</B></A>  (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        Length   : in Positive;
+                        Angle    : in <A HREF="#Angle_Type-1">Angle_Type</A>);
+
+  procedure <A NAME="Draw_Line_List-1"><B>Draw_Line_List</B></A>
+                       (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        Points   : in <A HREF="#Point_List-1">Point_List</A>);
+
+  procedure <A NAME="Draw_Rectangle-1"><B>Draw_Rectangle</B></A>
+                       (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        To       : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        Rounding : in <A HREF="#Point_Type-1">Point_Type</A> := (0,0));
+  procedure <A NAME="Draw_Rectangle-2"><B>Draw_Rectangle</B></A>
+                       (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        Width    : in Positive;
+                        Height   : in Positive;
+                        Rounding : in <A HREF="#Point_Type-1">Point_Type</A> := (0,0));
+
+  procedure <A NAME="Draw_Ellipse-1"><B>Draw_Ellipse</B></A>
+                       (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        To       : in <A HREF="#Point_Type-1">Point_Type</A>);
+  procedure <A NAME="Draw_Ellipse-2"><B>Draw_Ellipse</B></A>
+                       (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        Width    : in Positive;
+                        Height   : in Positive);
+  procedure <A NAME="Draw_Circle-1"><B>Draw_Circle</B></A>
+                       (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        Centre   : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        Radius   : in Positive);
+
+  procedure <A NAME="Draw_Polygon-1"><B>Draw_Polygon</B></A>
+                       (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        Points   : in <A HREF="#Point_List-1">Point_List</A>);
+
+  procedure <A NAME="Draw_Image-1"><B>Draw_Image</B></A> (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        Image    : in <A HREF="#Image_Type-1">Image_Type</A>);
+  procedure <A NAME="Draw_Image-2"><B>Draw_Image</B></A> (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        To       : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        Image    : in <A HREF="#Image_Type-1">Image_Type</A>);
+  procedure <A NAME="Draw_Image-3"><B>Draw_Image</B></A> (Canvas   : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                        From     : in <A HREF="#Point_Type-1">Point_Type</A>;
+                        Width    : in Natural;
+                        Height   : in Natural;
+                        Image    : in <A HREF="#Image_Type-1">Image_Type</A>);
+
+  function <A NAME="Start_Point-1"><B>Start_Point</B></A> (Canvas   : <A HREF="#Canvas_Type-1">Canvas_Type</A>) return <A HREF="#Point_Type-1">Point_Type</A>;
+  function <A NAME="End_Point-1"><B>End_Point</B></A>   (Canvas   : <A HREF="#Canvas_Type-1">Canvas_Type</A>) return <A HREF="#Point_Type-1">Point_Type</A>;
+  function <A NAME="Mouse_Down-1"><B>Mouse_Down</B></A>  (Canvas   : <A HREF="#Canvas_Type-1">Canvas_Type</A>) return Boolean;
+  function <A NAME="Mouse_Moved-1"><B>Mouse_Moved</B></A> (Canvas   : <A HREF="#Canvas_Type-1">Canvas_Type</A>) return Boolean;
+  function <A NAME="Key_Code-1"><B>Key_Code</B></A>    (Canvas   : <A HREF="#Canvas_Type-1">Canvas_Type</A>) return Character;
+
+  ----------------------------------------------------------------------------
+  --
+  --                     C O M M O N   D I A L O G S
+  --
+  --  Common dialogs are pre-packaged dialog widgets which are not treated
+  --  as normal windows (although they are made to look similar for ease of
+  --  use).
+  --
+  --  Common dialog operations (common to all dialogs):
+  --
+  --  Execute (Dialog)      -- execute the dialog and return True if the OK
+  --                        -- button was used to close the dialog and False
+  --                        -- otherwise.
+  --
+  ----------------------------------------------------------------------------
+
+  type <A NAME="Common_Dialog_Type-1"><B>Common_Dialog_Type</B></A> is abstract tagged private;
+
+  function <A NAME="Execute-2"><B>Execute</B></A> (Dialog : <A HREF="#Common_Dialog_Type-1">Common_Dialog_Type</A>) return Boolean;
+                                
+  ----------------------------------------------------------------------------
+  --
+  --           C O M M O N   D I A L O G   S U B C L A S S E S
+  --
+  --  The available dialog subclasses are colour, font and file dialogs.
+  --
+  --  Colour_Dialog_Type : a dialog to allow the user to select a colour.
+  --  Font_Dialog_Type   : a dialog to allow the user to select a font.
+  --  File_Dialog_Type   : a dialog to allow the user to select a file name.
+  --
+  ----------------------------------------------------------------------------
+
+  type <A NAME="Colour_Dialog_Type-1"><B>Colour_Dialog_Type</B></A> is new <A HREF="#Common_Dialog_Type-1">Common_Dialog_Type</A> with private;
+  type <A NAME="Font_Dialog_Type-1"><B>Font_Dialog_Type</B></A>   is new <A HREF="#Common_Dialog_Type-1">Common_Dialog_Type</A> with private;
+  type <A NAME="File_Dialog_Type-1"><B>File_Dialog_Type</B></A>   is abstract new <A HREF="#Common_Dialog_Type-1">Common_Dialog_Type</A> with private;
+  
+  ----------------------------------------------------------------------------
+  --
+  --                     C O L O U R   D I A L O G S
+  --
+  --  Colour dialogs allow the user to select or create a colour.
+  --
+  --  Colour dialog operations:
+  --
+  --  Colour_Dialog           -- create a colour dialog.
+  --  Set_Colour    (Dialog,  -- set the initial colour displayed in the
+  --                 Colour)  -- dialog to this colour.
+  --  Get_Colour    (Dialog)  -- get the colour contained in the dialog.
+  --
+  ----------------------------------------------------------------------------
+
+  function  <A NAME="Colour_Dialog-1"><B>Colour_Dialog</B></A> return <A HREF="#Colour_Dialog_Type-1">Colour_Dialog_Type</A>;
+
+  procedure <A NAME="Set_Colour-2"><B>Set_Colour</B></A>    (Dialog : in <A HREF="#Colour_Dialog_Type-1">Colour_Dialog_Type</A>;
+                           Colour : in <A HREF="#Colour_Type-1">Colour_Type</A>);
+  function  <A NAME="Get_Colour-1"><B>Get_Colour</B></A>    (Dialog : in <A HREF="#Colour_Dialog_Type-1">Colour_Dialog_Type</A>) return <A HREF="#Colour_Type-1">Colour_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --                       F O N T   D I A L O G S
+  --
+  --  Font dialogs allow the user to select a font.
+  --
+  --  Font dialog operations:
+  --
+  --  Font_Dialog             -- create a font dialog.
+  --  Set_Font    (Dialog,    -- set the initial font displayed in the
+  --               Font)      -- dialog to this font.
+  --  Get_Font    (Dialog)    -- get the font contained in the dialog.
+  --
+  ----------------------------------------------------------------------------
+
+  function  <A NAME="Font_Dialog-1"><B>Font_Dialog</B></A> return <A HREF="#Font_Dialog_Type-1">Font_Dialog_Type</A>;
+  
+  procedure <A NAME="Set_Font-3"><B>Set_Font</B></A>    (Dialog : in <A HREF="#Font_Dialog_Type-1">Font_Dialog_Type</A>;
+                         Font   : in <A HREF="#Font_Type-1">Font_Type</A>);
+  function  <A NAME="Get_Font-2"><B>Get_Font</B></A>    (Dialog : in <A HREF="#Font_Dialog_Type-1">Font_Dialog_Type</A>) return <A HREF="#Font_Type-1">Font_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --                       F I L E   D I A L O G S
+  --
+  --  File dialogs allow the user to select or enter a file name. This is an
+  --  abstract type which is further subclassed below.
+  --
+  --  File dialog operations (common to all file dialogs):
+  --
+  --  Set_Name      (Dialog,    -- set the initial file name displayed in the
+  --                 Name)      -- dialog to this string.
+  --  Get_Name      (Dialog)    -- get the file name contained in the dialog.
+  --  Add_Filter    (Dialog,    -- add a file type filter to the dialog
+  --                 Text,      -- with this description
+  --                 Filter)    -- to match this wildcard specification.
+  --  Set_Directory (Dialog,    -- set the initial directory for the dialog
+  --                 Name)      -- to this directory.
+  --
+  ----------------------------------------------------------------------------
+
+  procedure <A NAME="Set_Name-1"><B>Set_Name</B></A>      (Dialog : in <A HREF="#File_Dialog_Type-1">File_Dialog_Type</A>;
+                           Name   : in String);
+  function  <A NAME="Get_Name-1"><B>Get_Name</B></A>      (Dialog : in <A HREF="#File_Dialog_Type-1">File_Dialog_Type</A>) return String;
+
+  procedure <A NAME="Add_Filter-1"><B>Add_Filter</B></A>    (Dialog : in <A HREF="#File_Dialog_Type-1">File_Dialog_Type</A>;
+                           Text   : in String;
+                           Filter : in String);
+
+  procedure <A NAME="Set_Directory-1"><B>Set_Directory</B></A> (Dialog : in <A HREF="#File_Dialog_Type-1">File_Dialog_Type</A>;
+                           Name   : in String);
+
+  ----------------------------------------------------------------------------
+  --
+  --                       O P E N   D I A L O G S
+  --
+  --  Open dialogs allow the user to select or enter a file name for use as
+  --  an input file. The file name selected must be the name of an existing
+  --  file.
+  --
+  --  Open dialog operations:
+  --
+  --  Open_Dialog (Title)     -- create an open file dialog with this title.
+  --
+  ----------------------------------------------------------------------------
+
+  type <A NAME="Open_Dialog_Type-1"><B>Open_Dialog_Type</B></A> is new <A HREF="#File_Dialog_Type-1">File_Dialog_Type</A> with private;
+
+  function <A NAME="Open_Dialog-1"><B>Open_Dialog</B></A> (Title  : String) return <A HREF="#Open_Dialog_Type-1">Open_Dialog_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --
+  --                       S A V E   D I A L O G S
+  --
+  --  Save dialogs allow the user to select or enter a file name for use as
+  --  an output file. If the Create parameter to the constructor function
+  --  below is True (as it is by default) and an existing file is selected,
+  --  the user will be asked if the file should be overwritten. If it is
+  --  False and the file does not exist, the user will be asked if it should
+  --  be created.
+  --
+  --  Save dialog operations:
+  --
+  --  Save_Dialog (Title,     -- create a save file dialog with this title
+  --               Create)    -- which will prompt the user as described above.
+  --
+  ----------------------------------------------------------------------------
+
+  type <A NAME="Save_Dialog_Type-1"><B>Save_Dialog_Type</B></A> is new <A HREF="#File_Dialog_Type-1">File_Dialog_Type</A> with private;
+
+  function <A NAME="Save_Dialog-1"><B>Save_Dialog</B></A> (Title  : String;
+                        Create : Boolean := True) return <A HREF="#Save_Dialog_Type-1">Save_Dialog_Type</A>;
+
+  ----------------------------------------------------------------------------
+  --  Renamings for our transatlantic cousins, in the hope that some day
+  --  they'll repay the favour/favor...
+  ----------------------------------------------------------------------------
+
+  procedure <A NAME="Set_Color-1"><B>Set_Color</B></A> (Canvas : in <A HREF="#Canvas_Type-1">Canvas_Type</A>;
+                       Colour : in <A HREF="#Colour_Type-1">Colour_Type</A> := White) renames Set_Colour;
+
+  subtype   <A NAME="Color_Dialog_Type-1"><B>Color_Dialog_Type</B></A> is <A HREF="#Colour_Dialog_Type-1">Colour_Dialog_Type</A>;
+
+  function  <A NAME="Color_Dialog-1"><B>Color_Dialog</B></A>  return <A HREF="#Colour_Dialog_Type-1">Colour_Dialog_Type</A> renames Colour_Dialog;
+  procedure <A NAME="Set_Color-2"><B>Set_Color</B></A>    (Dialog : in <A HREF="#Colour_Dialog_Type-1">Colour_Dialog_Type</A>;
+                          Colour : in <A HREF="#Colour_Type-1">Colour_Type</A>) renames Set_Colour;
+  function  <A NAME="Get_Color-1"><B>Get_Color</B></A>    (Dialog : in <A HREF="#Colour_Dialog_Type-1">Colour_Dialog_Type</A>) return <A HREF="#Colour_Type-1">Colour_Type</A>
+                                                   renames Get_Colour;
+
+private
+
+  -- implementation details
+
+end JEWL.Windows;
+</PRE>
+</BODY>
+</HTML>

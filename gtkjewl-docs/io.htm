@@ -1,0 +1,501 @@
+<html>
+<head>
+<!--
+
+  $Id: io.htm 1.6 2001/11/02 16:00:00 JE Exp JE $
+
+  $Log: io.htm $
+  Revision 1.6  2001/11/02 16:00:00  JE
+  * Fixed canvas bug when saving an empty canvas
+  * Restore with no prior save now acts as erase
+  * Removed redundant variable declaration in Image function
+
+  Revision 1.5  2001/08/22 15:00:00  JE
+  * Minor bugfix to Get_Text for combo boxes
+  * Minor changes to documentation (including new example involving dialogs)
+
+  Revision 1.4  2001/01/25 09:00:00  je
+  Changes visible to the user:
+
+  * Added support for drawing bitmaps on canvases (Draw_Image operations
+    and new type Image_Type)
+  * Added Play_Sound
+  * Added several new operations on all windows: Get_Origin, Get_Width,
+    Get_Height, Set_Origin, Set_Size and Focus
+  * Added several functions giving screen and window dimensions: Screen_Width,
+    Screen_Height, Frame_Width, Frame_Height, Dialog_Width, Dialog_Height and
+    Menu_Height
+  * Canvases can now handle keyboard events: new constructor and Key_Code added
+  * Added procedure Play_Sound
+  * Operations "+" and "-" added for Point_Type
+  * Pens can now be zero pixels wide
+  * The absolute origin of a frame can now have be specified when the frame
+    is created
+  * Added new File_Dialog operations Add_Filter and Set_Directory
+  * Added Get_Line renames to JEWL.IO for compatibility with Ada.Text_IO
+  * Added all the Get(File,Item) operations mentioned in documentation but
+    unaccountably missing :-(
+  * Documentation updated to reflect the above changes
+  * HTML versions of public package specifications added with links from
+    main documentation pages
+
+  Other internal changes:
+
+  * Canvas fonts, pens etc. now use JEWL.Reference_Counted_Type rather than
+    reinventing this particular wheel, as do images
+  * Various minor code formatting changes: some code reordered for clarity,
+    some comments added or amended,
+  * Changes introduced in 1.2 to support GNAT 3.10 have been reversed, since
+    GNAT 3.10 still couldn't compile this code correctly... ;-(
+
+  Outstanding issues:
+
+  * Optimisation breaks the code (workaround: don't optimise)
+
+  Revision 1.3  2000/07/07 12:00:00  je
+  * JEWL.Simple_Windows added; JEWL.IO modified to use JEWL.Simple_Windows.
+  * JEWL.IO bug fix: Put_Line to file wrote newline to standard output
+    instead of to the file (thanks to Jeff Carter for pointing this out).
+  * Panels fixed so that mouse clicks are passed on correctly to subwindows.
+  * Memos fixed so that tabs are handled properly.
+  * Password feature added to editboxes.
+  * Minor typos fixed in comments within the package sources.
+  * Documentation corrected and updated following comments from Moti Ben-Ari
+    and Don Overheu.
+
+  Revision 1.2  2000/04/18 20:00:00  je
+  * Minor code changes to enable compilation by GNAT 3.10
+  * Minor documentation errors corrected
+  * Some redundant "with" clauses removed
+
+  Revision 1.1  2000/04/09 21:00:00  je
+  Initial revision
+
+-->
+<title>JEWL.IO User Manual</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+h1 {  font-family: Arial, Helvetica, sans-serif}
+h2 {  font-family: Arial, Helvetica, sans-serif}
+h3 {  font-family: Arial, Helvetica, sans-serif}
+h4 {  font-family: Arial}
+-->
+</style>
+</head>
+
+<body bgcolor="#FFFFFF">
+<h1 align="center"><font face="Arial, Helvetica, sans-serif">GtkJewl.IO User Manual</font></h1>
+<hr>
+<h2 align="left"><font face="Arial, Helvetica, sans-serif">Contents</font></h2>
+<p>
+<a href="#1"><b>1. Introduction</b></a><br>
+<a href="#2"><b>2. Non-GUI input and output facilities</b></a><br>
+<a href="#3"><b>3. String input</b></a><br>
+<a href="#4"><b>4. Input of standard types</b></a><br>
+<a href="#5"><b>5. Generic input facilities</b></a><br>
+<a href="#6"><b>6. Message boxes</b></a><br>
+<a href="#7"><b>7. File dialogs</b></a><br>
+<a name="1"><p><hr></a> 
+<h2>1. Introduction</h2>
+<p>GtkJewl (John English's Window Library) is a collection of Ada packages aimed 
+  at novices which enables reasonably sophisticated GUI applications to be built 
+  with a minimum of effort. The packages are designed to be platform-independent, 
+  but at present the only implementation is for Microsoft Windows. The examples 
+  in this document are all based on the Windows implementation.</p>
+<p><tt>GtkJewl.IO</tt> is a package which is a more-or-less direct replacement for 
+  the standard package <tt>Ada.Text_IO</tt> and its relations <tt>Ada.Integer_Text_IO</tt> 
+  and <tt>Ada.Float_Text_IO</tt>, which means that traditional text-based programs 
+  can be converted to GUI-based programs with a minimum of effort. <tt>GtkJewl.IO</tt> 
+  uses GUI dialogs for input, and all input is also echoed to the standard output. 
+  This means that the input part of any program can be made to use GUI dialogs, 
+  while output will still be written to the text-based standard output. The fact 
+  that all input is echoed to the standard output means that the output log will 
+  exactly mirror an equivalent program whose input is completely text-based.</p>
+<p><tt>GtkJewl.IO</tt> also contains some additional facilities: for example, facilities 
+  for generating error messages and other user alerts as message boxes (which 
+  are also echoed to the standard output); functions to convert data to strings 
+  and to concatenate strings to simplify data output;
+  and generalisations such as the provision of <tt>Put_Line</tt> procedures 
+  for types other than strings.</p>
+<p><tt>GtkJewl.IO</tt> provides similar facilities to <tt>Ada.Text_IO</tt> together 
+  with some new features:</p>
+<ul>
+  <li>Input and output of standard types: String, Character, Integer, Float and 
+    Boolean</li>
+  <li>Input and output of new types and subtypes: enumeration types, integral 
+    types and floating point types</li>
+  <li>Type conversions from the above types to strings</li>
+  <li>Standard user alerts: error messages, information messages and queries</li>
+  <li>File operations: opening and creating files using standard dialogs to identify 
+    the files to be opened or created.</li>
+</ul>
+<p>In all the dialogs except the user alerts there is a Cancel button which allows 
+  input to be aborted. Pressing the Cancel button (or the close button in the 
+  dialog's title bar) will in all cases close the dialog and raise an <tt>Input_Cancelled</tt> 
+  exception.</p>
+<p>The following sections describe each of these in more detail. In all cases, 
+  the names used to describe the parameters are the actual names used in the declarations, 
+  so a procedure described as <tt>Get(Prompt,Default)</tt> can be called like 
+  this:</p>
+<pre>    Get (&quot;My prompt&quot;, &quot;My default&quot;);</pre>
+<p>or like this:</p>
+<pre>    Get (Prompt =&gt; &quot;My prompt&quot;, Default =&gt; &quot;My default&quot;);</pre>
+<p>or like this:</p>
+<pre>    Get (Default =&gt; &quot;My default&quot;, Prompt =&gt; &quot;My prompt&quot;);</pre>
+<p>Also, the name of each operation in its description is hyperlinked to its declaration 
+  in the HTML version of the corresponding package specification, so that you 
+  can view the formal specification of any operation by clicking on the link in 
+  its description.</p>
+<a name="2">
+<p>
+<hr></a> 
+<h2>2. Non-GUI input and output facilities</h2>
+<p>Output facilities are dealt with first, as they have the greatest similarity 
+  to those provided by <tt>Ada.Text_IO</tt>. They are common to all the data types 
+  handled by <tt>GtkJewl.IO</tt> (String, Integer, Float and Boolean; any enumerated 
+  type, integral type or floating-point type) as well as the standard type Character. 
+  The output operations available are as follows:</p>
+<dl> 
+  <dl> 
+    <dt><tt><a href="gtkjewl-io.htm#Put-1">Put</a> (Item)</tt></dt>
+    <dd>Write the value of <tt>Item</tt> to the standard output.</dd>
+    <dt>&nbsp;</dt>
+    <dt><tt><a href="gtkjewl-io.htm#Put-3">Put</a> (File, Item)</tt></dt>
+    <dd>Write the value of <tt>Item</tt> to the file specified by <tt>File</tt>.</dd>
+    <dt>&nbsp;</dt>
+    <dt><tt><a href="gtkjewl-io.htm#Put_Line-1">Put_Line</a> (Item)</tt></dt>
+    <dd>Write <tt>Item</tt> and a newline to the standard output.</dd>
+    <dt>&nbsp;</dt>
+    <dt><tt><a href="gtkjewl-io.htm#Put_Line-3">Put_Line</a> (File, Item)</tt></dt>
+    <dd>Write <tt>Item</tt> and a newline to the file specified by <tt>File</tt>.</dd>
+    <dd>&nbsp;</dd>
+    <dt><tt><a href="gtkjewl-io.htm#New_Line-1">New_Line</a> (Spacing)</tt></dt>
+    <dd>Start a new line on the standard output as many times as specified by 
+      <tt>Spacing</tt>. <tt>Spacing</tt> is optional, and if it is omitted it 
+      is assumed to be 1.</dd>
+    <dd>&nbsp;</dd>
+    <dt><tt><a href="gtkjewl-io.htm#New_Line-2">New_Line</a> (File, Spacing)</tt></dt>
+    <dd>Start a new line on the file specified by <tt>File</tt> as many times 
+      as specified by <tt>Spacing</tt>. <tt>Spacing</tt> is optional, and if it 
+      is omitted it is assumed to be 1.</dd>
+  </dl>
+</dl>
+<p> There are also some standard type conversion operations:</p>
+<dl> 
+  <dl>
+    <dt><tt>S := <a href="gtkjewl-io.htm#To_String-1">To_String</a>(Item)</tt></dt>
+    <dd>Convert a (non-string) value <tt>Item</tt> to a String.</dd>
+    <dt><tt>T := <a href="gtkjewl-io.htm#Cat_1">S &amp; X</a></tt></dt>
+    <dd>Concatenate a String <tt>S</tt> and the value <tt>X</tt> into a single 
+      String.</dd>
+    <dt><tt>T := <a href="gtkjewl-io.htm#Cat_2">X &amp; S</a></tt></dt>
+    <dd>Concatenate the value <tt>X</tt> and a String <tt>S</tt> into a single 
+      String.</dd>
+  </dl>
+</dl>
+<p>The length of the result of <tt>To_String(Item)</tt> will depend on the value 
+  of the <tt>Item</tt> parameter; similarly, the length of <tt>S &amp; X</tt> 
+  will depend on the values of <tt>S</tt> and <tt>X</tt>. Such <i>unconstrained</i> 
+  strings can be passed to a subprogram which expects an unconstrained string 
+  as its parameter (e.g. <tt>Put</tt>) but can only be assigned to a String variable 
+  (or a slice of a string variable) if it is exactly the correct size. For example, 
+  this will generate a Constraint_Error exception if the result of <tt>To_String(Item)</tt> 
+  is not exactly 20 characters long:</p>
+<pre>    S : String(1..20) := To_String(Item);</pre>
+<p>It is often simpler to declare a String variable of the correct size and initialise 
+  it using a declaration like this:</p>
+<pre>    declare
+      S : String := To_String(Item);
+    begin
+      -- use the value of S here
+    end;</pre>
+<p>The bounds of <tt>S</tt> do not need to be specified; the result of <tt>To_String(Item)</tt> 
+  will be used to determine them.</p>
+<p>Some extra input facilities for use with files are provided:</p>
+<dl> 
+  <dl>
+    <dt><tt><a href="gtkjewl-io.htm#Skip_Line-1">Skip_Line</a> (File, Spacing)</tt></dt>
+    <dd>Skip as many lines of input as specified by <tt>Spacing</tt>. <tt>Spacing</tt> 
+      is optional, and if it is omitted it is assumed to be 1.</dd>
+    <dt>&nbsp;</dt>
+    <dt><tt><a href="gtkjewl-io.htm#End_Of_Line-1">End_Of_Line</a> (File)</tt></dt>
+    <dd>A function which returns True if the input position in the file specified 
+      by <tt>File</tt> is at the end of a line in the file.</dd>
+    <dt>&nbsp;</dt>
+    <dt><tt><a href="gtkjewl-io.htm#End_Of_File-1">End_Of_File</a> (File)</tt></dt>
+    <dd>A function which returns True if the input position in the file specified 
+      by <tt>File</tt> is at the end of the file.</dd>
+  </dl>
+</dl>
+<a name="3"><p><hr></a>
+<h2><b>3. String input</b></h2>
+<p>Strings are handled slightly differently to other types, since String is an 
+  <i>unconstrained</i> type whose length is variable. The operations available 
+  reflect this. They are as follows:</p>
+<dl> 
+  <dl> 
+    <dt><tt><a href="gtkjewl-io.htm#Get-1">Get</a> (Prompt, Default)</tt></dt>
+    <dd>This is a function which displays a dialog box which allows the user to 
+      enter a string of indefinite size (up to a very large system-dependent maximum). 
+      The dialog box has the title &quot;Input required&quot; and contains the 
+      specified prompt, an edit box for entering the required string value, and 
+      OK and Cancel buttons. The edit box is initialised to the value given by 
+      <tt>Default</tt>. Pressing the OK button closes the dialog, and returns 
+      the string as the result of the function. The prompt and the user's input 
+      are copied to the standard output for logging purposes. 
+      <p align="center"><img src="editdlg.gif" width="300" height="150"></p>
+      <p>Since the string's length is unknown, the only places where this function 
+        can be used is in contexts where an unconstrained string is acceptable. 
+        These are as the parameter to another procedure or function: </p>
+      <pre>    Put(Get(Prompt,Default));</pre>
+      <p> or in a declaration: </p>
+      <pre>    S : String := Get(Prompt,Default);</pre>
+      <p> Both the <tt>Prompt</tt> and <tt>Default</tt> parameters are optional, 
+        so that the simplest form of using <tt>Get</tt> is like this: </p>
+      <pre>    S : String := Get;</pre>
+      <p> By default, <tt>Prompt</tt> is &quot;Enter your text:&quot; and <tt>Default</tt> 
+        is the empty string (&quot;&quot;, zero characters in length).</p>
+    </dd>
+    <dt><tt><a href="gtkjewl-io.htm#Get-2">Get</a> (Item, Length, Prompt, Default)</tt></dt>
+    <dd>This is a procedure which reads a string into a fixed-length string variable. 
+      The <tt>Prompt</tt> and <tt>Default</tt> parameters are used as described 
+      above. <tt>Item</tt> is a string variable and <tt>Length</tt> is a Natural 
+      (or Integer) variable. The text entered in the dialog's edit box is copied 
+      into <tt>Item</tt> if <tt>Item</tt> is big enough. If <tt>Item</tt> is not 
+      large enough to hold all the text entered in the dialog box, as much of 
+      it as will fit will be copied. <tt>Length</tt> will be set to the actual 
+      number of characters copied into <tt>Item</tt>.</dd>
+    <dt>&nbsp;</dt>
+    <dt><tt><a href="gtkjewl-io.htm#Get-4">Get</a> (File, Item, Length)</tt></dt>
+    <dd>As above, except that the input comes from the file specified by <tt>File</tt>, 
+      and no dialog is used (so there is no prompt or default value).</dd>
+  </dl>
+</dl>
+<p>For the sake of compatibility with the names of operations in Ada.Text_IO, 
+  the last two are both available under different names:</p>
+<dl> 
+  <dl> 
+    <dt><tt><a href="gtkjewl-io.htm#Get_Line-1">Get_Line</a> (Item, Length, Prompt, 
+      Default)</tt></dt>
+    <dd>This is the same as <tt>Get (Item, Length, Prompt, Default)</tt>.</dd>
+    <dt>&nbsp;</dt>
+    <dt><tt><a href="gtkjewl-io.htm#Get_Line-2">Get_Line</a> (File, Item, Length)</tt></dt>
+    <dd>This is the same as <tt>Get (File, Item, Length)</tt>.</dd>
+  </dl>
+</dl>
+<p></p>
+<p>There is also a version of Get which will read a single character from a file:</p>
+<dl>
+  <dl> 
+    <dt><tt><a href="gtkjewl-io.htm#Get-4">Get</a> (File, Item)</tt></dt>
+    <dd>This procedure reads a single character from the specified file into the 
+      Character variable <tt>Item</tt>.</dd>
+  </dl>
+</dl>
+<p></p>
+<a name="4"><p><hr></a>
+<h2><b>4. Input of standard types</b></h2>
+<p>The standard types handled by <tt>GtkJewl.IO</tt> (apart from String, which was 
+  dealt with <a href="#3">above</a>) are Integer, Float and Boolean. There 
+  are no input facilities provided for single characters, as a String or enumerated 
+  type would usually be a more suitable choice of input type. If necessary, the 
+  input facilities for enumerated types described below can be used with type 
+  Character.</p>
+<p>For Integer, Float and Boolean, the following input operations are available:</p>
+<dl> 
+  <dl>
+    <dt><tt><a href="gtkjewl-io.htm#Get-5">Get</a> (Item, Default, Prompt)</tt></dt>
+    <dd>Use a GUI dialog to read a value of the appropriate type into <tt>Item</tt>, 
+      displaying <tt>Prompt</tt> as a prompt, with an initial value <tt>Default</tt> 
+      as the initial value of the dialog box. Both <tt>Prompt</tt> and <tt>Default</tt> 
+      can be omitted. If <tt>Prompt</tt> is omitted, a standard prompt will be 
+      displayed in the dialog box (e.g. &quot;Enter an integer:&quot; for type 
+      Integer); if <tt>Default</tt> is omitted, no default value will be provided 
+      when the dialog box is displayed.</dd>
+    <dt>&nbsp;</dt>
+    <dt><tt><a href="gtkjewl-io.htm#Get-7">Get</a> (File, Item)</tt></dt>
+    <dd>Read a value into <tt>Item</tt> from the file specified by <tt>File</tt>. 
+    </dd>
+  </dl>
+</dl>
+<p>Integer and Float dialogs use the same dialog box as for <a href="#3">String</a>, 
+  except that the input is checked to make sure it is valid when the OK button 
+  is pressed. If it is not valid, an error message will be displayed as a message 
+  box (see <tt>Error</tt>, <a href="#6">below</a>) and the dialog will be redisplayed 
+  if the &quot;OK&quot; button is pressed in response.</p>
+<p>Boolean dialogs have different forms depending on whether a default value is 
+  specified. If there is no default, the dialog box contains the specified prompt 
+  and three buttons labelled &quot;Yes&quot;, &quot;No&quot; and &quot;Cancel&quot;. 
+  Pressing the &quot;Yes&quot; button returns the value True, &quot;No&quot; returns 
+  False, and &quot;Cancel&quot; raises an <tt>Input_Cancelled</tt> exception as 
+  usual.</p>
+<p align="center"><img src="boolean1.gif" width="330" height="115"></p>
+<p align="left">If there is a default, a checkbox is displayed (labelled with 
+  the specified prompt) together with &quot;OK&quot; and &quot;Cancel&quot; buttons. 
+  The checkbox is checked initially if the default value is True.</p>
+<p align="center">&nbsp;<img src="boolean2.gif" width="350" height="115">
+<a name="5"><p><hr></a>
+<h2><b>5. Generic input facilities</b></h2>
+<p>GtkJewl.IO provides generic subpackages for input and output of enumeration types, 
+  integral types and floating-point types. To use these, they must be instantiated 
+  with the appropriate type:</p>
+<pre>    package My_Enumerated_IO is new <a href="gtkjewl-io.htm#Enumeration_IO">GtkJewl.IO.Enumeration_IO</a>&nbsp;(My_Enum);
+    package My_Integral_IO   is new <a href="gtkjewl-io.htm#Integer_IO">GtkJewl_IO.Integer_IO</a>&nbsp;(My_Int);
+    package My_Float_IO      is new <a href="gtkjewl-io.htm#Float_IO">GtkJewl_IO.Float_IO</a>&nbsp;(My_Float);</pre>
+<p>The operations available in these packages are the <a href="#2">standard 
+  output operations</a> and the following input operations (the same as described 
+  for the input of standard types, <a href="#4">above</a>):<br>
+</p>
+<dl> 
+  <dl> 
+    <dt><tt><a href="gtkjewl-io.htm#Get-14">Get</a> (Item, Default, Prompt)</tt></dt>
+    <dd>Use a GUI dialog to read a value of the appropriate type into <tt>Item</tt>, 
+      displaying <tt>Prompt</tt> as a prompt, with an initial value <tt>Default</tt> 
+      as the initial value of the dialog box. Both <tt>Prompt</tt> and <tt>Default</tt> 
+      can be omitted. If <tt>Prompt</tt> is omitted, a standard prompt will be 
+      displayed in the dialog box (e.g. &quot;Enter an integer:&quot; for type 
+      Integer); if <tt>Default</tt> is omitted, no default value will be provided 
+      when the dialog box is displayed.</dd>
+    <dt>&nbsp;</dt>
+    <dt><tt><a href="gtkjewl-io.htm#Get-16">Get</a> (File, Item)</tt></dt>
+    <dd>Read a value into <tt>Item</tt> from the file specified by <tt>File</tt>.</dd>
+  </dl>
+</dl>
+<p>The dialogs for integral and floating-point types use the same dialog box as 
+  for <a href="#3">String</a>, except that the input is checked to make 
+  sure it is valid when the OK button is pressed. If it is not valid, an error 
+  message which specifies the allowed range of values will be displayed as a message 
+  box (see <tt>Error</tt>   , <a href="#6">below</a>) and the dialog will be redisplayed 
+  if the &quot;OK&quot; button is pressed in response.</p>
+<p>Note that you should avoid providing a <i>use</i> clause for subtypes of Integer 
+  or Float, as this will produce an ambiguity between the existing operations 
+  for Integer and Float and those provided in the new package. For example, consider 
+  what will happen if <tt>Integer_IO</tt> is instantiated for Natural (a subtype 
+  of Integer):</p>
+<pre>    package Natural_IO is new GtkJewl.IO.Integer_IO(Natural);
+    use Natural_IO;</pre>
+<p> If <tt>Get</tt> is called for an Integer or Natural variable, the compiler 
+  will be unable to distinguish between the two versions of <tt>Get</tt> available:</p>
+<pre>    Get(Item);  -- is this Get(Item:Integer) or Get(Item:Natural)?</pre>
+<p>To resolve the ambiguity, you would need to specify the package name in both 
+  cases:</p>
+<pre>    <a href="gtkjewl-io.htm#Get-5">GtkJewl.IO.Get</a>(Item);      -- Get(Item:Integer)
+    <a href="gtkjewl-io.htm#Get-17">Natural_IO.Get</a>(Item);   -- Get(Item:Natural)</pre>
+<p>If there is no <i>use</i> clause for <tt>Natural_IO</tt>, the version of <tt>Get</tt> 
+  for type Natural will still need to be qualified as <tt>Natural_IO.Get</tt> 
+  as in the second case above but <tt>Get(Item)</tt> without any extra qualification 
+  will now be interpreted unambiguously as a reference to the version of <tt>Get</tt> 
+  for type Integer (the first case above).</p>
+<p>The dialog for enumeration types has a combobox instead of an edit box, and 
+  if a default value has been supplied this will be the value initially displayed 
+  in the combobox.. Pressing the button at the right of the combobox will display 
+  a pull-down list of the possible values of the enumerated type. Only values 
+  displayed in this list can be selected; the value in the combobox cannot be 
+  edited directly.</p>
+<center>
+  <img src="combodlg.gif" width="300" height="150">
+</center>
+<a name="6"><p><hr></a>
+<h2>6. Message boxes</h2>
+<p>A message box is a dialog which can be used to notify the user of an error 
+  or other information, or to ask a yes/no question. There are three operations 
+  which display message boxes:</p>
+<table width="95%" height="463" border="0" cellspacing="10">
+  <tr> 
+    <td width="98%" valign="top"> <dl>
+        <dl>
+          <dt><tt><a href="gtkjewl-io.htm#Message-1">Message</a> (Text)</tt></dt>
+          <dd>Show an information message with an &quot;OK&quot; button and an 
+            information icon. <tt>Text</tt> is the text of the message which appears 
+            inside the dialog window. The message is also echoed to the standard 
+            output. </dd>
+        </dl>
+      </dl></td>
+    <td width="2%" valign="top"> <center>
+        <img src="message.gif" width="188" height="119" align="center"> </center></td>
+  </tr>
+  <tr> 
+    <td width="98%" valign="top"> <dl>
+        <dl>
+          <dt><tt><a href="gtkjewl-io.htm#Error-1">Error</a> (Text)</tt></dt>
+          <dd>Show an error message with an &quot;OK&quot; button and an error 
+            icon. <tt>Text</tt> is the text of the message which appears inside 
+            the dialog window. The error message is also echoed to the standard 
+            output.</dd>
+        </dl>
+      </dl></td>
+    <td width="2%" valign="top"> <center>
+        <img src="error.gif" width="158" height="119" align="center"> </center></td>
+  </tr>
+  <tr> 
+    <td height="139" valign="top"><dl>
+        <dt>&nbsp;</dt>
+        <dd><tt><a href="gtkjewl-io.htm#Query-1">Query</a> (Text, Title</tt><tt>)</tt></dd>
+        <dt><tt></tt></dt>
+        <dd>Show a query message with a &quot;Yes&quot; button, a &quot;No&quot; 
+          button and an error icon. <tt>Text</tt> is the text of the message which 
+          appears inside the dialog window. This is a function which returns a 
+          Boolean result, which will be True if the &quot;Yes&quot; button is 
+          pressed and False if the &quot;No&quot; button is pressed. The query 
+          and the user's response is also echoed to the standard output.</dd>
+      </dl></td>
+    <td valign="top"><img src="query.gif" width="185" height="119" align="center"></td>
+  </tr>
+  <tr> 
+    <td height="139" valign="top"> <dl>
+        <dl>
+          <dt><tt><a href="gtkjewl-io.htm#Warning-1">Warning</a> (Text)</tt></dt>
+          <dd><tt></tt>Show an warning message with an &quot;OK&quot; button and 
+            an warning icon. <tt>Text</tt> is the text of the message which appears 
+            inside the dialog window. The warning message is also echoed to the 
+            standard output.</dd>
+          <dt>&nbsp;</dt>
+        </dl>
+      </dl></td>
+    <td valign="top"> <center>
+        <img src="warning.gif" width="190" height="130" align="center"> 
+      </center></td>
+  </tr>
+</table>
+<a name="7"><p><hr></a>
+<h2>7. File dialogs</h2>
+<p>A selection of standard dialogs are provided to open and create files. These 
+  display a directory tree and allow you to select or manually type in a filename 
+  to be opened or created. In each case a parameter <tt>File</tt> identifies the 
+  file being opened or created, and must be a variable of type <tt>File_Type</tt>. 
+  The procedures which use these dialogs are as follows:</p>
+<dl> 
+  <dl>
+    <dt><tt><a href="gtkjewl-io.htm#Open-1">Open</a> (File, Title)</tt></dt>
+    <dd>Open an existing file for input. <tt>Title</tt> is the caption to be displayed 
+      in the title bar of the dialog box, and is optional; if it is omitted, the 
+      title &quot;Select input file&quot; will be used.</dd>
+    <dt>&nbsp;</dt>
+    <dt><tt><a href="gtkjewl-io.htm#Create-1">Create</a> (File, Title)</tt></dt>
+    <dd> Create a new file for output. If a file of the specified name already 
+      exists, a <a href="#6">message box</a> will be displayed asking you 
+      to confirm that you want to overwrite it. <tt>Title</tt> is the caption 
+      to be displayed in the title bar of the dialog box, and is optional; if 
+      it is omitted, the title &quot;Select output file&quot; will be used.</dd>
+    <dt>&nbsp;</dt>
+    <dt><tt><a href="gtkjewl-io.htm#Append-1">Append</a> (File, Title)</tt></dt>
+    <dd>Open a file for appending output to. If a file of the specified name does 
+      not already exist, a <a href="#6">message box</a> will be displayed 
+      asking you to confirm that you want to create it. <tt>Title</tt> is the 
+      caption to be displayed in the title bar of the dialog box, and is optional; 
+      if it is omitted, the title &quot;Select output file&quot; will be used.</dd>
+  </dl>
+</dl>
+<p>The dialogs will look like this:</p>
+<p align="center"><img src="filedlg.gif" width="426" height="264"></p>
+<p>Files should be closed when they are no longer needed, as follows:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-io.htm#Close-1">Close</a> (File) </tt></dt>
+    <dd>Close the specified file when it is no longer needed.</dd>
+    <dt>&nbsp;</dt>
+  </dl>
+</dl>
+</body>
+</html>

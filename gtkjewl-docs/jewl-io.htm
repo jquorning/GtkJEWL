@@ -1,0 +1,610 @@
+<HTML>
+<HEAD>
+<!--
+
+  $Id: jewl-io.htm 1.6 2001/11/02 16:00:00 JE Exp JE $
+
+  $Log: jewl-io.htm $
+  Revision 1.6  2001/11/02 16:00:00  JE
+  * Fixed canvas bug when saving an empty canvas
+  * Restore with no prior save now acts as erase
+  * Removed redundant variable declaration in Image function
+
+  Revision 1.5  2001/08/22 15:00:00  JE
+  * Minor bugfix to Get_Text for combo boxes
+  * Minor changes to documentation (including new example involving dialogs)
+
+  Revision 1.4  2001/01/25 09:00:00  je
+  Changes visible to the user:
+
+  * Added support for drawing bitmaps on canvases (Draw_Image operations
+    and new type Image_Type)
+  * Added Play_Sound
+  * Added several new operations on all windows: Get_Origin, Get_Width,
+    Get_Height, Set_Origin, Set_Size and Focus
+  * Added several functions giving screen and window dimensions: Screen_Width,
+    Screen_Height, Frame_Width, Frame_Height, Dialog_Width, Dialog_Height and
+    Menu_Height
+  * Canvases can now handle keyboard events: new constructor and Key_Code added
+  * Added procedure Play_Sound
+  * Operations "+" and "-" added for Point_Type
+  * Pens can now be zero pixels wide
+  * The absolute origin of a frame can now have be specified when the frame
+    is created
+  * Added new File_Dialog operations Add_Filter and Set_Directory
+  * Added Get_Line renames to JEWL.IO for compatibility with Ada.Text_IO
+  * Added all the Get(File,Item) operations mentioned in documentation but
+    unaccountably missing :-(
+  * Documentation updated to reflect the above changes
+  * HTML versions of public package specifications added with links from
+    main documentation pages
+
+  Other internal changes:
+
+  * Canvas fonts, pens etc. now use JEWL.Reference_Counted_Type rather than
+    reinventing this particular wheel, as do images
+  * Various minor code formatting changes: some code reordered for clarity,
+    some comments added or amended,
+  * Changes introduced in 1.2 to support GNAT 3.10 have been reversed, since
+    GNAT 3.10 still couldn't compile this code correctly... ;-(
+
+  Outstanding issues:
+
+  * Optimisation breaks the code (workaround: don't optimise)
+
+-->
+<TITLE>JEWL.IO package specification</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<H1 ALIGN=CENTER>JEWL.IO package specification</H1>
+<PRE>
+------------------------------------------------------------------------------
+--                                                                          --
+--                             J E W L . I O                                --
+--                                                                          --
+--   An extended input-output package for beginners, using graphical        --
+--   dialogs for input which also write log information to the standard     --
+--   output.                                                                --
+--                                                                          --
+--   The documentation below assumes that you are familiar with the main    --
+--   features of the input and output facilities provide by Ada.Text_IO.    --
+--                                                                          --
+--   Copyright (C) John English 2000. Contact address: je@brighton.ac.uk    --
+--   This software is released under the terms of the GNU General Public    --
+--   License and is intended primarily for educational use. Please contact  --
+--   the author to report bugs, suggestions and modifications.              --
+--                                                                          --
+------------------------------------------------------------------------------
+
+with Ada.Text_IO;
+
+package JEWL.IO is
+
+  ----------------------------------------------------------------------------
+  --
+  -- Some local names for types from Ada.Text_IO
+  --
+  subtype <A NAME="Positive_Count-1"><B>Positive_Count</B></A> is Ada.Text_IO.Positive_Count;
+  subtype <A NAME="File_Type-1"><B>File_Type</B></A>      is Ada.Text_IO.File_Type;
+
+  ----------------------------------------------------------------------------
+  --
+  -- Exceptions that this package might raise
+  --
+  <A NAME="Input_Cancelled-1"><B>Input_Cancelled</B></A> : exception;      -- the user cancelled an input dialog
+
+  ----------------------------------------------------------------------------
+  --
+  -- Routines to display message boxes
+  --
+  procedure <A NAME="Message-1"><B>Message</B></A> (Text : in String);                 -- an information message
+  procedure <A NAME="Error-1"><B>Error</B></A>   (Text : in String);                 -- an error message
+  function  <A NAME="Query-1"><B>Query</B></A>   (Text : in String) return Boolean;  -- a yes/no query
+
+  ----------------------------------------------------------------------------
+  --
+  -- Output a newline, as in Ada.Text_IO
+  --
+  procedure <A NAME="New_Line-1"><B>New_Line</B></A> (Spacing : in Ada.Text_IO.Positive_Count := 1)
+            renames Ada.Text_IO.New_Line;
+
+  ----------------------------------------------------------------------------
+  --
+  -- Opening and closing files, using standard file dialogs to get filenames
+  --
+  procedure <A NAME="Open-1"><B>Open</B></A>   (File  : in out <A HREF="#File_Type-1">File_Type</A>;   -- open an existing file
+                    Title : in String := "Select input file");
+  procedure <A NAME="Create-1"><B>Create</B></A> (File  : in out <A HREF="#File_Type-1">File_Type</A>;   -- create a new file
+                    Title : in String := "Select output file");
+  procedure <A NAME="Append-1"><B>Append</B></A> (File  : in out <A HREF="#File_Type-1">File_Type</A>;   -- append to existing/new file
+                    Title : in String := "Select output file");
+  procedure <A NAME="Close-1"><B>Close</B></A>  (File   : in out Ada.Text_IO.File_Type)
+                                renames Ada.Text_IO.Close;
+                                                -- close an open file
+
+  ----------------------------------------------------------------------------
+  --
+  --  Standard file positioning operations and queries, as in Ada.Text_IO
+  --
+  procedure <A NAME="New_Line-2"><B>New_Line</B></A>    (File    : in Ada.Text_IO.File_Type;
+                         Spacing : in <A HREF="#Positive_Count-1">Positive_Count</A> := 1)
+                                renames Ada.Text_IO.New_Line;
+  procedure <A NAME="Skip_Line-1"><B>Skip_Line</B></A>   (File    : in Ada.Text_IO.File_Type;
+                         Spacing : in <A HREF="#Positive_Count-1">Positive_Count</A> := 1)
+                                renames Ada.Text_IO.Skip_Line;
+  function  <A NAME="End_Of_Line-1"><B>End_Of_Line</B></A> (File    : in Ada.Text_IO.File_Type)
+                         return Boolean
+                                renames Ada.Text_IO.End_Of_Line;
+  function  <A NAME="End_Of_File-1"><B>End_Of_File</B></A> (File    : in Ada.Text_IO.File_Type)
+                         return Boolean
+                                renames Ada.Text_IO.End_Of_File;
+
+  ----------------------------------------------------------------------------
+  --
+  --      P R I M A R Y   I N P U T / O U T P U T   R O U T I N E S
+  --
+  --                         ---- Input ----
+  --
+  --  For each scalar type (with generic packages for enumerations, integral
+  --  types and floating point types, and support provided as standard for
+  --  String, Character, Integer, Float, and Boolean):
+  --
+  --  Get (Item    => X,       -- get a value into X,
+  --       Default => Y,       -- with an initial default value of Y (optional)
+  --       Prompt  => Z);      -- displaying Z as a prompt (optional),
+  --
+  --  Get (File    => F,
+  --       Item    => X);      -- get a value into X from file F
+  --
+  --  The prompt is always a string; the default value depends on the type of
+  --  data involved. In the case of String there is a potential ambiguity as
+  --  the prompt and default values are both strings. It is recommended that
+  --  the Prompt and Default parameters are always specified as "Prompt=>X"
+  --  and "Default=>X" to avoid confusion.
+  --
+  --  Strings are a bit different: there is a function which gets a String
+  --  (unconstrained) and a procedure which gets a value into a String but
+  --  which also returns the length of the string in Length:
+  --
+  --  S := Get (Prompt  => Y,  -- optional
+  --            Default => Z); -- optional
+  --
+  --  Get (Item    => X,       -- get a value into X,
+  --       Length  => L,       -- whose actual length is L,
+  --       Prompt  => Y,       -- displaying Y as a prompt (optional),
+  --       Default => Z);      -- with an initial default value of Z (optional)
+  --
+  --  Get (File    => F,
+  --       Item    => X,       -- get a value into X from file F,
+  --       Length  => L);      -- whose actual length is L
+  --
+  --                        ---- Output ----
+  --
+  --  Values can be output to the standard output or a file, with or without
+  --  a following newline:
+  --
+  --  Put (Item => X);         -- write the value of X on the standard output
+  --  Put (File => F,
+  --       Item => X);         -- write the value of X on the file F
+  --
+  --  Put_Line (Item => X);    -- write X and a newline on the standard output
+  --  Put_Line (File => F,
+  --            Item => X);    -- write X and a newline on the file F
+  --
+  --                    ---- Type conversion ----
+  --
+  --  S := To_String(X)        -- convert a (non-string) type to a String
+  --  S := S &amp; X;              -- concatenate String and X
+  --  S := X &amp; S;              -- concatenate X and String
+  --
+  ----------------------------------------------------------------------------
+  --
+  --  String and Character input
+  --
+  function  <A NAME="Get-1"><B>Get</B></A> (Prompt  : in  String := "Enter your text:";
+                 Default : in  String := "")
+                 return String;     -- display a dialog with a label (Prompt)
+                                    -- and an editbox (initial value Default)
+                                    -- and return the contents of the editbox
+                                    -- as a String (unconstrained)
+
+  procedure <A NAME="Get-2"><B>Get</B></A> (Item    : out String;
+                 Length  : out Natural;
+                 Prompt  : in  String := "Enter your text:";
+                 Default : in  String := "");
+                                    -- use the same edit dialog to get a string
+                                    -- into a variable, the maximum length being
+                                    -- limited by the size of Item and the actual
+                                    -- length being stored in Length, with an
+                                    -- initial default value
+  procedure <A NAME="Get-3"><B>Get</B></A> (File    : in Ada.Text_IO.File_Type;
+                 Item    : out Character)
+                                renames Ada.Text_IO.Get;
+                                    -- get a character from a file, from Text_IO
+  procedure <A NAME="Get-4"><B>Get</B></A> (File    : in Ada.Text_IO.File_Type;
+                 Item    : out String;
+                 Length  : out Natural)
+                                renames Ada.Text_IO.Get_Line;
+                                    -- get a string and its length from a file,
+                                    -- from Text_IO
+
+  ----------------------------------------------------------------------------
+  --  Renamings for consistency with Ada.Text_IO
+  ----------------------------------------------------------------------------
+
+  procedure <A NAME="Get_Line-1"><B>Get_Line</B></A> (Item    : out String;
+                      Length  : out Natural     ;
+                      Prompt  : in  String := "Enter your text:";
+                      Default : in  String := "")  renames Get;
+
+  procedure <A NAME="Get_Line-2"><B>Get_Line</B></A> (File    : in Ada.Text_IO.File_Type;
+                      Item    : out String;
+                      Length  : out Natural)       renames Get;
+
+  ----------------------------------------------------------------------------
+  --
+  --  String and Character output
+  --
+  procedure <A NAME="Put-1"><B>Put</B></A> (Item    : in String)
+                                renames Ada.Text_IO.Put;
+                                    -- output a string
+  procedure <A NAME="Put-2"><B>Put</B></A> (Item    : in Character)
+                                renames Ada.Text_IO.Put;
+                                    -- output a character
+  procedure <A NAME="Put-3"><B>Put</B></A> (File    : in Ada.Text_IO.File_Type;
+                 Item    : in Character)
+                                renames Ada.Text_IO.Put;
+                                    -- output a character to a file
+  procedure <A NAME="Put-4"><B>Put</B></A> (File    : in Ada.Text_IO.File_Type;
+                 Item    : in String)
+                                renames Ada.Text_IO.Put;
+                                    -- output a string to a file
+
+  ----------------------------------------------------------------------------
+  --
+  --  String and Character output, with newlines
+  --
+  procedure <A NAME="Put_Line-1"><B>Put_Line</B></A> (Item : in String)
+                                renames Ada.Text_IO.Put_Line;
+                                    -- output a string and newline
+  procedure <A NAME="Put_Line-2"><B>Put_Line</B></A> (Item : in Character);
+                                    -- output a character and newline
+  procedure <A NAME="Put_Line-3"><B>Put_Line</B></A> (File : in Ada.Text_IO.File_Type;
+                      Item : in String)
+                                renames Ada.Text_IO.Put_Line;
+                                    -- output a string and newline to a file
+  procedure <A NAME="Put_Line-4"><B>Put_Line</B></A> (File : in <A HREF="#File_Type-1">File_Type</A>;
+                      Item : in Character);
+                                    -- output a character and newline to a file
+
+  ----------------------------------------------------------------------------
+  --
+  --               INTEGER INPUT, OUTPUT AND CONVERSION
+  --
+  ----------------------------------------------------------------------------
+  --
+  --  Integer input
+  --
+  procedure <A NAME="Get-5"><B>Get</B></A> (Item    : out Integer;
+                 Prompt  : in  String := "Enter an integer:");
+                                    -- display a dialog with a label (Prompt)
+                                    -- and a blank editbox which returns the
+                                    -- contents of the editbox as an Integer
+  procedure <A NAME="Get-6"><B>Get</B></A> (Item    : out Integer;
+                 Default : in  Integer;
+                 Prompt  : in  String := "Enter an integer:");
+                                    -- display the same dialog with the editbox
+                                    -- initialised to the value of Default
+  procedure <A NAME="Get-7"><B>Get</B></A> (File    : in  <A HREF="#File_Type-1">File_Type</A>;
+                 Item    : out Integer);
+                                    -- read an Integer from a file
+
+  ----------------------------------------------------------------------------
+  --
+  --  Integer output
+  --
+  procedure <A NAME="Put-5"><B>Put</B></A> (Item    : in Integer);
+                                    -- output an Integer
+  procedure <A NAME="Put-6"><B>Put</B></A> (File    : in <A HREF="#File_Type-1">File_Type</A>;
+                 Item    : in Integer);
+                                    -- output an Integer to a file
+
+  ----------------------------------------------------------------------------
+  --
+  --  Integer output, with newlines
+  --
+  procedure <A NAME="Put_Line-5"><B>Put_Line</B></A> (Item : in Integer);
+                                    -- output an Integer and a newline
+  procedure <A NAME="Put_Line-6"><B>Put_Line</B></A> (File : in <A HREF="#File_Type-1">File_Type</A>;
+                      Item : in Integer);
+                                    -- output an Integer and a newline to a file
+
+  ----------------------------------------------------------------------------
+  --
+  --  Integer conversion routines
+  --
+  function  <A NAME="To_String-1"><B>To_String</B></A> (Item : Integer) return String;
+                                    -- convert an integer to a string
+
+  function  <A NAME="Cat_1"><B>"&amp;"</B></A> (Left    : String;
+                 Right   : Integer)    return String;
+                                    -- concatenate String &amp; Integer
+  function  <A NAME="Cat_2"><B>"&amp;"</B></A> (Left    : Integer;
+                 Right   : String)     return String;
+                                    -- concatenate Integer &amp; String
+
+  ----------------------------------------------------------------------------
+  --
+  --                FLOAT INPUT, OUTPUT AND CONVERSION
+  --
+  ----------------------------------------------------------------------------
+  --
+  --  Float input
+  --
+  procedure <A NAME="Get-8"><B>Get</B></A> (Item    : out Float;
+                 Prompt  : in  String := "Enter a number:");
+                                    -- display a dialog with a label (Prompt)
+                                    -- and a blank editbox which returns the
+                                    -- contents of the editbox as an Integer
+  procedure <A NAME="Get-9"><B>Get</B></A> (Item    : out Float;
+                 Default : in  Float;
+                 Prompt  : in  String := "Enter a number:");
+                                    -- display the same dialog with the editbox
+                                    -- initialised to the value of Default
+  procedure <A NAME="Get-10"><B>Get</B></A> (File    : in  <A HREF="#File_Type-1">File_Type</A>;
+                 Item    : out Float);
+                                    -- read a Float from a file
+
+  ----------------------------------------------------------------------------
+  --
+  --  Float output
+  --
+  procedure <A NAME="Put-7"><B>Put</B></A> (Item    : in  Float);
+  procedure <A NAME="Put-8"><B>Put</B></A> (File    : in  <A HREF="#File_Type-1">File_Type</A>;
+                 Item    : in  Float);
+
+  ----------------------------------------------------------------------------
+  --
+  --  Float output, with newlines
+  --
+  procedure <A NAME="Put_Line-7"><B>Put_Line</B></A> (Item : in Float);
+  procedure <A NAME="Put_Line-8"><B>Put_Line</B></A> (File : in <A HREF="#File_Type-1">File_Type</A>;
+                      Item : in Float);
+
+  ----------------------------------------------------------------------------
+  --
+  --   Float conversion routines
+  --
+  function  <A NAME="To_String-2"><B>To_String</B></A> (Item : Float) return String;
+
+  function  <A NAME="Cat_3"><B>"&amp;"</B></A> (Left    : String;
+                 Right   : Float)    return String;
+  function  <A NAME="Cat_4"><B>"&amp;"</B></A> (Left    : Float;
+                 Right   : String)   return String;
+
+  ----------------------------------------------------------------------------
+  --
+  --               BOOLEAN INPUT, OUTPUT AND CONVERSION
+  --
+  ----------------------------------------------------------------------------
+  --
+  --  Boolean input
+  --
+  procedure <A NAME="Get-11"><B>Get</B></A> (Item    : out Boolean;
+                 Prompt  : in  String := "Yes or no?");
+                                    -- display a dialog with Yes/No/Cancel
+                                    -- buttons
+  procedure <A NAME="Get-12"><B>Get</B></A> (Item    : out Boolean;
+                 Default : in  Boolean;
+                 Prompt  : in  String := "Yes");
+                                    -- display a dialog with a checkbox
+                                    -- initialised as specified by Default
+  procedure <A NAME="Get-13"><B>Get</B></A> (File    : in  <A HREF="#File_Type-1">File_Type</A>;
+                 Item    : out Boolean);
+                                    -- read a Boolean from a file
+
+  ----------------------------------------------------------------------------
+  --
+  --  Boolean output
+  --
+  procedure <A NAME="Put-9"><B>Put</B></A> (Item    : in Boolean);
+  procedure <A NAME="Put-10"><B>Put</B></A> (File    : in <A HREF="#File_Type-1">File_Type</A>;
+                 Item    : in Boolean);
+
+  ----------------------------------------------------------------------------
+  --
+  --  Boolean output, with newlines
+  --
+  procedure <A NAME="Put_Line-9"><B>Put_Line</B></A> (Item : in Boolean);
+  procedure <A NAME="Put_Line-10"><B>Put_Line</B></A> (File : in <A HREF="#File_Type-1">File_Type</A>;
+                      Item : in Boolean);
+
+  ----------------------------------------------------------------------------
+  --
+  --  Boolean conversion routines
+  --
+  function  <A NAME="To_String-3"><B>To_String</B></A> (Item : Boolean) return String;
+
+  function  <A NAME="Cat_5"><B>"&amp;"</B></A> (Left    : String;
+                 Right   : Boolean)    return String;
+  function  <A NAME="Cat_6"><B>"&amp;"</B></A> (Left    : Boolean;
+                 Right   : String)     return String;
+
+  ----------------------------------------------------------------------------
+  --
+  --             ENUMERATION INPUT, OUTPUT AND CONVERSION
+  --
+  ----------------------------------------------------------------------------
+
+  <A NAME="Enumeration_IO">generic</A>
+    type <A NAME="Item_Type-1"><B>Item_Type</B></A> is (&lt;>);
+  package <B>Enumeration_IO</B> is
+
+    --------------------------------------------------------------------------
+    --
+    --  Enumeration input
+    --
+    procedure <A NAME="Get-14"><B>Get</B></A> (Item    : out <A HREF="#Item_Type-1">Item_Type</A>;
+                   Prompt  : in  String := "Choose a value:");
+                                    -- display a dialog with a label (Prompt)
+                                    -- and a combobox listing all values of
+                                    -- type Item_Type
+    procedure <A NAME="Get-15"><B>Get</B></A> (Item    : out <A HREF="#Item_Type-1">Item_Type</A>;
+                   Default : in  <A HREF="#Item_Type-1">Item_Type</A>;
+                   Prompt  : in  String := "Choose a value:");
+                                    -- display the same dialog with the combobox
+                                    -- initialised to Default
+    procedure <A NAME="Get-16"><B>Get</B></A> (File    : in  <A HREF="#File_Type-1">File_Type</A>;
+                   Item    : out <A HREF="#Item_Type-1">Item_Type</A>);
+                                    -- read an Item_Type value from a file
+
+    --------------------------------------------------------------------------
+    --
+    --  Enumeration output
+    --
+    procedure <A NAME="Put-11"><B>Put</B></A> (Item    : in  <A HREF="#Item_Type-1">Item_Type</A>);
+    procedure <A NAME="Put-12"><B>Put</B></A> (File    : in <A HREF="#File_Type-1">File_Type</A>;
+                   Item    : in <A HREF="#Item_Type-1">Item_Type</A>);
+
+    --------------------------------------------------------------------------
+    --
+    --  Enumeration output, with newlines
+    --
+    procedure <A NAME="Put_Line-11"><B>Put_Line</B></A> (Item : in <A HREF="#Item_Type-1">Item_Type</A>);
+    procedure <A NAME="Put_Line-12"><B>Put_Line</B></A> (File : in <A HREF="#File_Type-1">File_Type</A>;
+                        Item : in <A HREF="#Item_Type-1">Item_Type</A>);
+
+    --------------------------------------------------------------------------
+    --
+    --  Enumeration conversion routines
+    --
+    function  <A NAME="To_String-4"><B>To_String</B></A> (Item : <A HREF="#Item_Type-1">Item_Type</A>) return String;
+
+    function  <A NAME="Cat_7"><B>"&amp;"</B></A> (Left    : String;
+                   Right   : <A HREF="#Item_Type-1">Item_Type</A>)    return String;
+    function  <A NAME="Cat_8"><B>"&amp;"</B></A> (Left    : <A HREF="#Item_Type-1">Item_Type</A>;
+                   Right   : String)       return String;
+
+  end Enumeration_IO;
+
+  ----------------------------------------------------------------------------
+  --
+  --         GENERIC INTEGRAL INPUT, OUTPUT AND CONVERSION
+  --
+  ----------------------------------------------------------------------------
+
+  <A NAME="Integer_IO">generic</A>
+    type <A NAME="Item_Type-2"><B>Item_Type</B></A> is range &lt;>;
+  package <B>Integer_IO</B> is
+
+    --------------------------------------------------------------------------
+    --
+    --  Generic integral input
+    --
+    procedure <A NAME="Get-17"><B>Get</B></A> (Item    : out <A HREF="#Item_Type-2">Item_Type</A>;
+                   Prompt  : in  String := "Enter an integer:");
+                                    -- display a dialog with a label (Prompt)
+                                    -- and a blank editbox which returns the
+                                    -- contents of the editbox as an Item_Type
+                                    -- integral value
+    procedure <A NAME="Get-18"><B>Get</B></A> (Item    : out <A HREF="#Item_Type-2">Item_Type</A>;
+                   Default : in  <A HREF="#Item_Type-2">Item_Type</A>;
+                   Prompt  : in  String := "Enter an integer:");
+                                    -- display the same dialog with the editbox
+                                    -- initialised to the value of Default
+    procedure <A NAME="Get-19"><B>Get</B></A> (File    : in  <A HREF="#File_Type-1">File_Type</A>;
+                   Item    : out <A HREF="#Item_Type-2">Item_Type</A>);
+                                    -- read an Item_Type value from a file
+
+    --------------------------------------------------------------------------
+    --
+    --  Generic integral output
+    --
+    procedure <A NAME="Put-13"><B>Put</B></A> (Item    : in  <A HREF="#Item_Type-2">Item_Type</A>);
+    procedure <A NAME="Put-14"><B>Put</B></A> (File    : in <A HREF="#File_Type-1">File_Type</A>;
+                   Item    : in <A HREF="#Item_Type-2">Item_Type</A>);
+
+    --------------------------------------------------------------------------
+    --
+    --  Generic integral output, with newlines
+    --
+    procedure <A NAME="Put_Line-13"><B>Put_Line</B></A> (Item : in <A HREF="#Item_Type-2">Item_Type</A>);
+    procedure <A NAME="Put_Line-14"><B>Put_Line</B></A> (File : in <A HREF="#File_Type-1">File_Type</A>;
+                        Item : in <A HREF="#Item_Type-2">Item_Type</A>);
+
+    --------------------------------------------------------------------------
+    --
+    -- Generic integral conversion routines
+    --
+    function  <A NAME="To_String-5"><B>To_String</B></A> (Item : <A HREF="#Item_Type-2">Item_Type</A>) return String;
+
+    function  <A NAME="Cat_9"><B>"&amp;"</B></A> (Left    : String;
+                   Right   : <A HREF="#Item_Type-2">Item_Type</A>)    return String;
+    function  <A NAME="Cat_10"><B>"&amp;"</B></A> (Left    : <A HREF="#Item_Type-2">Item_Type</A>;
+                   Right   : String)       return String;
+
+  end Integer_IO;
+
+  ----------------------------------------------------------------------------
+  --
+  --       GENERIC FLOATING-POINT INPUT, OUTPUT AND CONVERSION
+  --
+  ----------------------------------------------------------------------------
+
+  <A NAME="Float_IO">generic</A>
+    type <A NAME="Item_Type-3"><B>Item_Type</B> is digits &lt;>;
+  package <B>Float_IO</B></A> is
+
+    --------------------------------------------------------------------------
+    --
+    --  Generic floating-point input
+    --
+    procedure <A NAME="Get-20"><B>Get</B></A> (Item    : out <A HREF="#Item_Type-3">Item_Type</A>;
+                   Prompt  : in  String := "Enter a number:");
+                                    -- display a dialog with a label (Prompt)
+                                    -- and a blank editbox which returns the
+                                    -- contents of the editbox as an Item_Type
+                                    -- floating-point value
+    procedure <A NAME="Get-21"><B>Get</B></A> (Item    : out <A HREF="#Item_Type-3">Item_Type</A>;
+                   Default : in  <A HREF="#Item_Type-3">Item_Type</A>;
+                   Prompt  : in  String := "Enter a number:");
+                                    -- display the same dialog with the editbox
+                                    -- initialised to the value of Default
+    procedure <A NAME="Get-22"><B>Get</B></A> (File    : in  <A HREF="#File_Type-1">File_Type</A>;
+                   Item    : out <A HREF="#Item_Type-3">Item_Type</A>);
+                                    -- read an Item_Type value from a file
+
+    --------------------------------------------------------------------------
+    --
+    --  Generic floating-point output
+    --
+    procedure <A NAME="Put-15"><B>Put</B></A> (Item    : in  <A HREF="#Item_Type-3">Item_Type</A>);
+    procedure <A NAME="Put-16"><B>Put</B></A> (File    : in <A HREF="#File_Type-1">File_Type</A>;
+                   Item    : in <A HREF="#Item_Type-3">Item_Type</A>);
+
+    --------------------------------------------------------------------------
+    --
+    --  Generic floating-point output, with newlines
+    --
+    procedure <A NAME="Put_Line-15"><B>Put_Line</B></A> (Item : in <A HREF="#Item_Type-3">Item_Type</A>);
+    procedure <A NAME="Put_Line-16"><B>Put_Line</B></A> (File : in <A HREF="#File_Type-1">File_Type</A>;
+                        Item : in <A HREF="#Item_Type-3">Item_Type</A>);
+
+    --------------------------------------------------------------------------
+    --
+    --  Generic floating-point conversion routines
+    --
+    function  <A NAME="To_String-6"><B>To_String</B></A> (Item : <A HREF="#Item_Type-3">Item_Type</A>) return String;
+
+    function  <A NAME="Cat_11"><B>"&amp;"</B></A> (Left    : String;
+                   Right   : <A HREF="#Item_Type-3">Item_Type</A>)    return String;
+    function  <A NAME="Cat_12"><B>"&amp;"</B></A> (Left    : <A HREF="#Item_Type-3">Item_Type</A>;
+                   Right   : String)       return String;
+
+  end Float_IO;
+
+end JEWL.IO;
+</PRE>
+</BODY>
+</HTML>

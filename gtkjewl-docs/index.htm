@@ -1,0 +1,101 @@
+<html>
+<head>
+<title>GtkJewl User Manual</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+h1 {  font-family: Arial, Helvetica, sans-serif}
+h2 {  font-family: Arial, Helvetica, sans-serif}
+h3 {  font-family: Arial, Helvetica, sans-serif}
+h4 {  font-family: Arial}
+-->
+</style>
+</head>
+
+<body bgcolor="#FFFFFF">
+<h1 align="center"><font face="Arial, Helvetica, sans-serif">GtkJewl Documentation</font></h1>
+<hr>
+<h2 align="left"><font face="Arial, Helvetica, sans-serif">About GtkJewl</font></h2>
+<p>GtkJewl (John English's Window Library) is a set of Ada packages aimed at novices 
+  which enables reasonably sophisticated GUI applications to be built with a minimum 
+  of effort. The rationale behind the development of this library is that beginners 
+  are often frustrated with the text-only interface that the standard Ada library 
+  provides and complain that they would prefer to learn Visual Basic or Java instead, 
+  largely because they can produce modern-looking programs with minimal effort. 
+<p>The intention of GtkJewl is to provide a development kit for GUI-based programming 
+  in Ada which is sufficiently simple that it can be used from the &quot;Hello 
+  world&quot; stage onwards. For this reason the emphasis is on ease of use rather 
+  than completeness. Existing GUI packages are often bewildering to novices with 
+  the range of facilities they provide, and they achieve flexibility at the price 
+  of complexity. As a result, hand-coding a GUI can be extremely difficult. Languages 
+  like Visual Basic use a GUI builder to avoid the need for hand-coding, but the 
+  code that a GUI builder generates is often difficult to understand (and easy to
+  avoid having to understand). For developing production code this is not an important
+  issue, but in education it can cloud the student's understanding of what is really
+  going on. It is also easy for students to get sidetracked into perfecting the
+  appearance of the user interface at the expense of perfecting the desired functionality. 
+<p>GtkJewl is relatively inflexible by comparison with systems intended for developing 
+  production code and only provides access to a limited subset range of the underlying 
+  facilities, but it is still sufficient for a wide range of novice programs. 
+  It is designed so that a program using a graphical interface can be developed 
+  by hand-coding, such that the resulting program structure will be similar to 
+  an equivalent program with a traditional text-based interface. 
+<p> There are three primary packages included in GtkJewl: 
+<ul>
+  <li><a href="io.htm"><b>GTKGtkJewl.IO</b></a>: a package with similar functionality 
+    to Ada.Text_IO which provides input/output facilities for strings and characters, 
+    integers, floats, Booleans and generic enumeration, integral and floating-point 
+    types, as well as useful facilities such as message boxes to display error 
+    messages. Input is based on GUI dialogs which echo the input received to the 
+    standard output, so that a standard text-based program can easily be transformed 
+    into a partially GUI-based program. An HTML version of the package specification 
+    is available <a href="gtkjewl-io.htm">here</a>. 
+    <p> 
+  </li>
+  <li><a href="windows.htm"><b>GTKGtkJewl.Windows</b></a>: a GUI package providing 
+    a selection of common GUI building blocks (frames, dialog windows, buttons, 
+    menus, editboxes, checkboxes, and so on). This is a generic package. An HTML 
+    version of the package specification is available <a href="gtkjewl-windows.htm">here</a>. 
+    <p>
+  </li>
+  <li><b><a href="windows.htm">GTKGtkJewl.Simple_Windows</a></b>: an instantiation 
+    of GtkJewl.Windows for type Character, which is provided so that you don't need 
+    to create your own instantiation of GtkJewl.Windows before you can use it.</li>
+    An HTML version of the package specification is available
+    <a href="gtkjewl-simple_windows.htm">here</a>.
+</ul>
+<p>GtkJewl.IO can be used as a more-or-less direct replacement for Ada.Text_IO (although 
+  not all the facilities of Ada.Text_IO are supported, and there are some extra 
+  features in GtkJewl.IO), whereas GtkJewl.Windows is a generic package which is instantiated 
+  using a discrete type listing the various commands that GUI controls will be 
+  required to generate. GtkJewl.Simple_Windows is a predefined instantiation of
+  GtkJewl.Windows which generates values of type Character for the command codes.
+  A program based around GtkJewl.Windows or GtkJewl.Simple_Windows will typically use 
+  a simple event loop to get the next command from the user interface and respond 
+  to it, but the intention is to make programs appear sychronous and procedural 
+  rather than event-driven. In particular it would be an easy matter to replace 
+  a GtkJewl GUI user interface with a text-based menu-driven interface, which is 
+  not usually the case.</p>
+<p>GtkJewl.IO uses GUI dialogs for input which are built using the facilities of 
+  GtkJewl.Simple_Windows. GtkJewl.IO, GtkJewl.Windows and GtkJewl.Simple_Windows can all be used 
+  together in a single program if required.</p>
+<p>Documentation for the GtkJewl packages:</p>
+<ul>
+  <li><a href="io.htm">GtkJewl.IO User Manual</a></li>
+  <li> <a href="windows.htm">GtkJewl.Windows User Manual</a></li>
+</ul>
+<p>These documents are linked to the following HTML versions of the package
+  specifications:
+<ul>
+  <li><a href="gtkjewl.htm">GtkJewl package specification</a></li>
+  <li><a href="gtkjewl-io.htm">GtkJewl.IO package specification</a></li>
+  <li><a href="gtkjewl-windows.htm">GtkJewl.Windows package specification</a></li>
+  <li><a href="gtkjewl-simple_windows.htm">GtkJewl.Simple_Windows package specification</a></li>
+</ul>
+<p>I hope that you find this library useful, and I welcome any comments or suggestions 
+  you might have to help improve it.</p>
+<center><font face="Arial, Helvetica, sans-serif" size="-2"><hr><br>
+  GtkJewl Documentation</font>
+</center>
+</body>
+</html>

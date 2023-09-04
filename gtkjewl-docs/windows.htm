@@ -1,0 +1,2257 @@
+<html>
+<head>
+<title>GtkJewl.Windows User Manual</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+h1 {  font-family: Arial, Helvetica, sans-serif}
+h2 {  font-family: Arial, Helvetica, sans-serif}
+h3 {  font-family: Arial, Helvetica, sans-serif}
+h4 {  font-family: Arial}
+-->
+</style>
+</head>
+
+<body bgcolor="#FFFFFF">
+<h1 align="center"><font face="Arial, Helvetica, sans-serif">GtkJewl.Windows User 
+  Manual</font></h1>
+<hr>
+<h2 align="left"><font face="Arial, Helvetica, sans-serif">Contents</font></h2>
+<p><a href="#1"><b>1. Introduction</b></a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;1.1 <a href="#1.1">Getting Started</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;1.2 <a href="#1.2">Another example<br>
+  </a>&nbsp;&nbsp;&nbsp;&nbsp;1.3 <a href="#1.3">An example using a dialog</a>
+<p> <a href="#2"><b>2. The window type hierarchy</b> </a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;2.1 <a href="#2.1">Support types</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.1 <a href="#2.1.1">Fonts</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.2 <a href="#2.1.2">Points</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.3 <a href="#2.1.3">Colours</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.4 <a href="#2.1.4">Angles</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.5 <a href="#2.1.5">Alignments</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.6 <a href="#2.1.6">Images</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;2.2 <a href="#2.2">Specifying window sizes and positions</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;2.3 <a href="#2.3">Using the keyboard</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;2.4 <a href="#2.4">Message boxes and common dialogs</a>
+  <br>
+  &nbsp;&nbsp;&nbsp;&nbsp;2.5 <a href="#2.5">Playing sounds</a>
+<p> <a href="#3"><b>3. Containers</b></a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;3.1 <a href="#3.1">Frames</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;3.2 <a href="#3.2">Dialogs</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;3.3 <a href="#3.3">Panels</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;3.4 <a href="#3.4">Menus</a>
+<p> <a href="#4"><b>4. Controls</b></a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;4.1 <a href="#4.1">Text controls</a><a href="#4.1"><br>
+  </a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.1.1 <a href="#4.1.1">Buttons</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.1.2 <a href="#4.1.2">Labels</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.1.3 <a href="#4.1.3">Editboxes</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;4.2 <a href="#4.2">Boolean controls<br>
+  </a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.2.1 <a href="#4.2.1">Menuitems</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.2.2 <a href="#4.2.2">Checkboxes</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.2.3 <a href="#4.2.3">Radiobuttons</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;4.3 <a href="#4.3">Multiline controls</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.3.1 <a href="#4.3.1">Listboxes</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.3.2 <a href="#4.3.2">Comboboxes</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.3.3 <a href="#4.3.3">Memos</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;4.4<a href="#4.4">Range controls</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.4.1 <a href="#4.4.1">Progressbar</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.4.2 <a href="#4.4.2">Scrollbar</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.4.3 <a href="#4.4.3">Scale</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.4.4 <a href="#4.4.4">Spinbutton</a> 
+<p> <a href="#5"><b>5. Canvases</b></a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;5.1 <a href="#5.1">Canvas properties</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;5.2 <a href="#5.2">Drawing operations</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;5.3 <a href="#5.3">Modifying a drawing</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;5.4 <a href="#5.4">Handling user interaction</a>
+<p><a href="#6"><b>6. Common dialogs</b></a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;6.1 <a href="#6.1">Colour dialogs</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;6.2 <a href="#6.2">Font dialogs</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;6.3 <a href="#6.3">File dialogs</a></p>
+<a name="1"><p><hr></a>
+<h2>1. Introduction</h2>
+<p>GtkJewl (John English's Window Library) is a set of Ada packages aimed
+  at novices which enables reasonably sophisticated GUI applications to be built
+  with a minimum of effort. The packages are designed to be platform-independent,
+  but at present the only implementation is for Microsoft Windows. The examples
+  in this document are all based on the Windows implementation.</p>
+<p>GtkJewl is not intended as a complete binding to the Windows (or any other) API;
+  it is a deliberately simple system intended to allow novices to build GUI-based
+  applications in Ada without tears. It hides much of the complexity involved
+  in building GUI applications, and its use involves no &quot;advanced&quot; language concepts;
+  it is intended to be accessible to programmers who are familiar with procedural
+  programming concepts. Internally, it uses tasks, protected records, tagged types,
+  and many other features which the user does not need to know about.
+  The model adopted is a simplified event-loop approach which is essentially
+  procedural and which avoids the complexities involved in using callbacks (scope
+  issues for access to subprogram types), object-oriented approaches (overriding
+  primitives without accidentally defining new methods that are never called)
+  or generic controls (requiring instantiation of individual controls). </p>
+<p>GtkJewl provides a number of standard GUI controls including menus, buttons, text
+  labels, checkboxes, radio buttons, edit boxes, list boxes and combo boxes. It
+  also provides a set of container windows to which controls can be attached;
+  for example, a <i>frame</i> is a container window which appears as a standard
+  top-level window with a title bar.</p>
+<p>Controls can be regarded as visual representations of variables in a program.
+  For example, an <i>editbox</i> appears as an editable string, and is thus a
+  visual representation of a string variable; a <i>checkbox</i> is a control which
+  can be toggled between two visible states (checked and unchecked) and is thus
+  a visual representation of a Boolean variable.</p>
+<p>Some controls (e.g. buttons and menu items) generate command codes when they
+  are activated which the program can respond to in some appropriate way; others
+  (e.g. editboxes) allow the user to interact with them but do not generate command
+  codes. A program can wait for a command from a button or menu item and then
+  respond to the command by reading or altering the values of other controls.</p>
+<p>The primary GtkJewl package is <tt>GtkJewl.Windows</tt>, which is a generic package
+  which needs to be instantiated with a type representing the command codes return
+  by controls. To avoid the need to explicitly define a type and instantiate the
+  package, the package <tt>GtkJewl.Simple_Windows</tt> is a predefined instantiation
+  of <tt>GtkJewl.Windows</tt> for type Character (that is, the command code that
+  a control returns will be a character)<a name="1.1"></a>.</p>
+<h3>1.1 Getting started</h3>
+<p>To use GtkJewl, you need to reference the package <tt>GtkJewl.Windows</tt>
+  in a <i>with</i> clause:</p>
+<pre>    with GtkJewl.Windows;
+    procedure My_Program is
+      ...
+    end My_Program;</pre>
+<p><tt>GtkJewl.Windows</tt> is a
+  generic package which needs to be instantiated with a list of the command codes
+  that buttons and menu items will generate. For example, if you want commands
+  to quit the program, load a file or save a file, you could define a list of
+  command codes like this:</p>
+<pre>    type Command_Code is (Quit, Load, Save);</pre>
+<p>Now you can instantiate a version of <tt>GtkJewl.Windows</tt> which can generate
+  these three command codes:</p>
+<pre>    package My_Windows is new GtkJewl.Windows (Command_Code);
+    use My_Windows;</pre>
+<p>Next, you will need to define the main window for your program as a frame,
+  like this:</p>
+<pre>    My_Frame : Frame_Type := Frame (200, 150, &quot;Main Window&quot;, Quit);
+</pre>
+<p>This creates a variable called <tt>My_Frame</tt> of type <tt>Frame_Type</tt>
+  and initialises it to refer to a frame which is 200 pixels wide and 150 pixels
+  high with the title &quot;Main Window&quot; in the caption bar at the top. When
+  it is closed, it will generate a <tt>Quit</tt> command. It will look like this:</p>
+<p align="center"><img src="image1.gif" width="200" height="150"><br>
+</p>
+<p>This window will appear on the screen as soon as it has been created, and will
+  disappear when the program ends. The body of the program will normally contain
+  a loop to prevent the program ending until the window is closed, like this:</p>
+<pre>    while Valid(My_Frame) loop
+      ...
+    end loop;
+</pre>
+<p>The function<tt> Valid(My_Frame)</tt> is true as long as <tt>My_Frame</tt>
+  refers to a valid window, in other words until the window is closed. While it's
+  open, the window can be dragged around the screen, minimised, maximised or resized
+  in the same way as any other window. A complete program which just displays
+  a window like the one above looks like this:</p>
+<pre>    with GtkJewl.Windows;
+    procedure My_Program is
+      type Command_Code is (Quit, Load, Save);
+      package My_Windows is new GtkJewl.Windows (Command_Code);
+      use My_Windows;
+      My_Frame : Frame_Type := Frame (200, 150, "Main Window", Quit);
+    begin
+      while Valid(My_Frame) loop
+        null;		-- do nothing, just go round the loop again
+      end loop;
+    end My_Program;</pre>
+<p>Alternatively, the standard instantiation <tt>GtkJewl.Simple_Windows</tt> can
+  be used, which uses characters for the command codes. For example, you could
+  use <tt>'Q'</tt>, <tt>'L'</tt> and <tt>'S'</tt> instead of <tt>Quit</tt>, <tt>Load</tt>
+  and <tt>Save</tt>. This means you don't have to define the type <tt>Command_Code</tt>
+  or instantiate<tt> GtkJewl.Windows</tt>: </p>
+<pre>    with GtkJewl.Simple_Windows;
+    use  GtkJewl.Simple_Windows;
+    procedure My_Program is
+      My_Frame : Frame_Type := Frame (200, 150, "Main Window", 'Q');
+    begin
+      while Valid(My_Frame) loop
+        null;		-- do nothing, just go round the loop again
+      end loop;
+    end My_Program;</pre>
+<p>Of course, this program wastes a lot of time going round and round the loop.
+  The last parameter in the function <tt>Frame</tt> specifies a command code that
+  will be generated when the frame is closed (in this case, <tt>'Q'</tt>), and
+  you can get your program to wait until a command is generated using the function
+  <tt>Next_Command</tt>. The loop can be rewritten like this:</p>
+<pre>    loop
+      case Next_Command is
+        when 'Q' =&gt; ...
+        when others =&gt; null;
+      end case;
+    end loop;</pre>
+<p>Now the program will wait for a command to be generated each time around the
+  loop, and the case statement allows you to specify what to do for each different
+  command. The loop no longer tests whether the frame is valid, as the command
+  code <tt>'Q'</tt> will be generated when the window is closed. This can be used
+  to exit from the loop:</p>
+<pre>    when 'Q' =&gt;
+      exit;</pre>
+<p>You can also generate commands using buttons, menu items or canvases. In the
+  case of a button, pressing it generates the command; selecting a menu item generates
+  a command. Canvases are described <a href="#5">later</a>. You could define a
+  button which generates the command code <tt>'Q'</tt> like this:</p>
+<pre>    Quit_Button : Button_Type :=
+                       Button (My_Frame, (50,10), 80, 25, &quot;Quit&quot;, 'Q');</pre>
+<p>This defines a button attached to the frame <tt>My_Frame</tt> at position (50,10):
+  that is, with its top left corner 50 pixels across and 10 pixels down from the
+  top left hand corner of the <i>client area</i> of the frame (the inset panel
+  within the frame). It will be 80 pixels wide by 25 pixels high, and labelled
+  &quot;Quit&quot;. Note that the command code <tt>'Q'</tt> can now be generated
+  either by closing the main window or by pressing the &quot;Quit&quot; button.
+  The code for the <tt>'Q'</tt> command can be modified to make sure that the
+  window is closed like this:</p>
+<pre>    when 'Q' =&gt;
+      Close (My_Frame);
+      exit;</pre>
+<p>The procedure <tt>Close</tt> will close the frame if it is still open (but
+  has no effect if it is already closed).</p>
+<p>In this example, we want to be able to generate the <tt>Load</tt> (<tt>'L'</tt>)
+  and <tt>Save</tt> (<tt>'S'</tt>) commands. A simple way to do this is to add
+  two buttons to the frame:</p>
+<pre>    Load_Button : Button_Type :=
+                       Button(My_Frame, (55,20), 80, 25, &quot;Load&quot;, 'L');
+    Save_Button : Button_Type :=
+                       Button(My_Frame, (55,60), 80, 25, &quot;Save&quot;, 'S');
+</pre>
+<p>The first button is enclosed by frame <tt>My_Frame</tt> at position (55,20).
+  The second is attached at (55,60), 40 pixels below the first. The buttons are
+  both 80 pixels wide and 25 pixels high. One is labelled &quot;Load&quot; and
+  generates a <tt>Load</tt> command, the other is labelled &quot;Save&quot; and
+  generates a <tt>Save</tt> command. This is what it looks like when the buttons
+  have been added to the frame:</p>
+<p align="center"><img src="image2.gif" width="200" height="150"></p>
+<p>You need to complete the case statement by supplying suitable actions in response
+  to the <tt>Load</tt> and <tt>Save</tt> commands. For testing purposes, just
+  displaying a message would be a good start:</p>
+<pre>    when 'L' =&gt;
+      Show_Message (&quot;Load button pressed!&quot;);
+    when 'S' =&gt;
+      Show_Message (&quot;Save button pressed!&quot;);</pre>
+<p> <tt>Show_Message</tt> is a
+  handy function which generates a message box containing the specified message
+  and an &quot;OK&quot; button. The message box will look like this:</p>
+<p align="center"><img src="message.gif" width="190" height="132"></p>
+<p align="left">Here is the complete program:</p>
+<pre align="left">    with GtkJewl.Simple_Windows;
+    use  GtkJewl.Simple_Windows;
+    procedure My_Program is
+      My_Frame    : Frame_Type  := Frame (200, 150, "Main Window", 'Q');
+      Load_Button : Button_Type :=
+                        Button(My_Frame, (55,20), 80, 25, &quot;Load&quot;, 'L');
+      Save_Button : Button_Type :=
+                        Button(My_Frame, (55,60), 80, 25, &quot;Save&quot;, 'S');
+    begin
+      while Valid(My_Frame) loop
+        case Next_Command is
+          when 'Q' =&gt;
+            exit;
+          when 'L' =&gt;
+            Show_Message (&quot;Load button pressed!&quot;);
+          when 'S' =&gt;
+            Show_Message (&quot;Save button pressed!&quot;);
+          when others =&gt;
+            null;
+        end case;
+      end loop;
+    end My_Program;</pre>
+<p align="left">By default, the GNAT compiler will generate code to create a console
+  window, and the application window will appear on top of this. If you don't
+  need a console window, specify the linker switch &quot;<tt>-mwindows</tt>&quot;
+  when you build the program. For example, the program above can be compiled using
+  the following command:</p>
+<pre align="left">    gnatmake my_program.adb -largs -mwindows<a name="1.2"></a>
+ </pre>
+<h3>1.2 Another example</h3>
+<p>This section describes a slightly more complex example: a temperature converter
+  to convert between Centigrade and Fahrenheit or vice versa. It will look like
+  this:</p>
+<p align="center"><img src="image4.gif" width="200" height="150"></p>
+<p>This consists of a frame labelled &quot;Converter&quot;, an <i>editbox</i>
+  which currently contains the value 0, a button labelled &quot;Convert&quot;,
+  and a <i>label</i> which shows the result of the conversion (in this case &quot;0C&nbsp;=&nbsp;32F&quot;.
+  There is also a <i>menu</i> labelled &quot;Direction&quot;, with two <i>menu
+  items</i>: &quot;C to F&quot; and &quot;F to C&quot;.</p>
+<p>The frame is 200 pixels wide by 150 high:</p>
+<pre>    My_Frame : Frame_Type := Frame (200, 150, "Converter", 'Q');
+</pre>
+<p>The editbox is located at (10,10), is 170 pixels wide and 20 pixels high,with
+  an initial value of zero:</p>
+<pre>    Value : Editbox_Type := Editbox(My_Frame, (10,10), 170, 20, "0");</pre>
+<p>The button is located at (55,40) and is 80 pixels wide and 25 pixels wide,
+  like this:</p>
+<pre>    Do_It : Button_Type :=
+                Button (My_Frame, (55,40), 80, 25, &quot;Convert&quot;, 'X');    </pre>
+<p>The label is located at (0,75) and is 20 pixels high. We can make it occupy
+  the full width of the parent window by specifying its width as zero. That way,
+  if the parent window size is changed the size of the label will also be changed.
+  Specifying the size and position of a window relative to the size of its parent
+  window is described in <a href="#2.2">section 2.2</a>.</p>
+<p>The label is initially blank, but we want any text displayed to be centred
+  horizontally within it:</p>
+<pre>    Result : Label_Type := Label (My_Frame, (0,75), 0, 20, &quot;&quot;, Centre);</pre>
+<p>The menu is created like this:</p>
+<pre>    My_Menu : Menu_Type := Menu (My_Frame, &quot;&amp;Direction&quot;);
+    C_To_F  : Menuitem_Type := Menuitem (My_Menu, &quot;&amp;C to F&quot;, 'C');
+    F_To_C  : Menuitem_Type := Menuitem (My_Menu, &quot;&amp;F to C&quot;, 'F');</pre>
+<p>The menu is enclosed by the frame, and then the two menu items are attached
+  to the menu. Each menu item specifies the command code to be generated when
+  the item is selected. The labels for the menu and the menu items include an
+  &quot;&amp;&quot; character, which isn't displayed but instead causes the following
+  character (e.g. the &quot;D&quot; in &quot;Direction&quot;) to be underlined
+  when it's displayed. You can select the menu with the mouse, or you can press
+  <tt>ALT</tt> with the underlined character (<tt>ALT-D</tt> in this case) to
+  display the menu. While the menu is visible, you can select a menu item with
+  the mouse or by pressing <tt>ALT-C</tt> (for &quot;C to F&quot;) or <tt>ALT-F</tt>
+  (for &quot;F to C&quot;).</p>
+<p>If you don't like this visual appearance, it's easy enough to change it to
+  suit your preferences, but the important thing now is to define the body of
+  the program so that it does something useful. As before, we'll need a loop which
+  terminates when the window is closed:</p>
+<pre>    loop
+      case Next_Command is
+        when 'Q' =&gt;
+          exit;
+        when 'C' =&gt;
+          -- and so on.
+      end case;
+    end loop;</pre>
+<p>A few extra variables will be needed: a Boolean variable to record the direction
+  of the conversion (C to F or F to C) which I'll call <tt>To_F</tt>, and a couple
+  of integer variables (which I'll call <tt>C</tt> and <tt>F</tt> due to a total
+  lack of imagination). The menu items just need to set the value of <tt>To_F</tt>:</p>
+<pre>    when 'C' =&gt;
+      To_F := True;
+    when 'F' =&gt;
+      To_F := False;
+</pre>
+<p>When the button is pressed, we need to get the contents of the editbox and
+  convert it from an integer to a string, and then do the calculation:</p>
+<pre>    when 'X' =&gt;
+      if To_F then
+        C := Integer'Value(Get_Text(Value));
+        -- convert C to Fahrenheit
+      else
+        F := Integer'Value(Get_Text(Value));
+        -- convert F to Centigrade
+      end if;</pre>
+<p>This uses the function <tt>Get_Text</tt> to get the contents of the edit box.
+  <tt>Get_Text</tt> can be used with any text control, including editboxes and
+  labels; you can also set the text displayed by the control using <tt>Set_Text</tt>.
+  The conversion to Fahrenheit is done like this:</p>
+<pre>    F := C * 9 / 5 + 32;</pre>
+<p>The conversion to Centigrade is the reverse of this:</p>
+<pre>    C := (F - 32) * 5 / 9;</pre>
+<p>Finally, we need to use <tt>Set_Text</tt> to display the result in the label,
+  which for a conversion to Fahrenheit is done like this:</p>
+<pre>    Set_Text (Result, Integer'Image(C) &amp; &quot;C =&quot; &amp; Integer'Image(F) &amp; &quot;F&quot;);</pre>
+<p>The complete program looks like this:</p>
+<pre>    with GtkJewl.Simple_Windows;
+    use  GtkJewl.Simple_Windows;
+    procedure Converer is
+
+      My_Frame : Frame_Type := Frame (200, 150, "Converter", 'Q');
+      My_Menu  : Menu_Type  := Menu (My_Frame, &quot;&amp;Direction&quot;);
+      C_To_F   : Menuitem_Type := Menuitem (My_Menu, &quot;&amp;C to F&quot;, 'C');
+      F_To_C   : Menuitem_Type := Menuitem (My_Menu, &quot;&amp;F to C&quot;, 'F');
+      Value    : Editbox_Type :=
+                 Editbox (My_Frame, (10,10), 110, 20, "0");
+      Do_It    : Button_Type :=
+                 Button (My_Frame, (40,40), 80, 25, &quot;Convert&quot;, 'X');
+      Result   : Label_Type :=
+                 Label (My_Frame, (10,75), 0, 20, &quot;&quot;, Centre);
+
+      To_F : Boolean := True;
+      C, F : Integer;
+
+    begin
+      loop
+        case Next_Command is
+          when 'Q' =&gt;
+            exit;
+          when 'C' =&gt;
+            To_F := True;
+          when 'F' =&gt;
+            To_F := False;
+          when 'X' =&gt;
+            if To_F then
+              C := Integer'Value(Get_Text(Value));
+              F := C * 9 / 5 + 32;
+              Set_Text (Result, Integer'Image(C) &amp; &quot;C =&quot; &amp;
+                                Integer'Image(F) &amp; &quot;F&quot;);
+            else
+              F := Integer'Value(Get_Text(Value));
+              C := (F - 32) * 5 / 9;
+              Set_Text (Result, Integer'Image(F) &amp; &quot;F =&quot; &amp;
+                                Integer'Image(C) &amp; &quot;C&quot;);
+            end if;
+        end case;
+      end loop;
+    end Converter;</pre>
+<p>Of course, there are many ways this could be improved; there is no visible
+  indication whether a Centigrade-to-Fahrenheit or a Fahrenheit-to-Centigrade
+  conversion will be performed when the button is pressed, and there is no exception
+  handling to cope with situations where non-integer input is entered into the
+  edit box. Such improvements are left as exercises for the reader... <tt>:-)</tt></p>
+<pre align="left"><a name="1.3"></a>
+ </pre>
+<h3>1.3 An example using a dialog</h3>
+<p>This section gives an example which is an extension of the one given in the
+  previous section. Instead of converting temperatures, it converts currencies
+  using an exchange rate which can be specified in a pop-up dialog. Pressing a
+  &quot;Set Rate&quot; button activates the dialog, which looks like this:</p>
+<p align="center"><img src="image5.gif" width="499" height="201"></p>
+<p>Dialog boxes are used for modal dialogs, where the user is forced to provide
+  some input before it is possible to proceed. A dialog window is similar to a
+  frame window, except that dialogs cannot be resized, minimised or maximised,
+  and they cannot have menus. A dialog also disables all other windows belonging
+  to the same application while it is visible, so dialogs cannot be ignored. The
+  only ways to dismiss a dialog and resume normal processing are to press a button
+  within the dialog window, or to cancel the dialog by using the &quot;close&quot;
+  button in the upper right corner.</p>
+<p>In this case we want a dialog labelled &quot;Conversion Rate&quot; which we'll
+  arrange to generate the character 'Q' if it is closed:</p>
+<pre>    Convert  : Dialog_Type :=
+               Dialog (200, 100, "Conversion Rate", 'Q');</pre>
+<p>Attached to this are a label, and edit box and two buttons. The OK button will
+  generate the character 'Y', and the Cancel button will generate the character
+  'Q' (the same as if the dialog window is closed directly):</p>
+<pre>    C_Label  : Label_Type :=
+               Label (Convert, (10,10), 40, 25, "Rate:", Right);
+    C_Edit   : Editbox_Type :=
+               EditBox (Convert, (60,10), 100, 25, "1.00");
+    C_OK     : Button_Type :=
+               Button (Convert, (10,45) , 80, 25, "OK", 'Y');
+    C_Cancel : Button_Type :=
+               Button (Convert, (100,45) , 80, 25, "Cancel", 'Q'); </pre>
+<p>The &quot;Set Rate&quot; button can be defined like this:</p>
+<pre>    Set_Rate : Button_Type :=
+               Button (My_Frame, (140,40), 80, 25, "Set Rate", 'R');
+</pre>
+<p>When the button is pressed, we make the dialog appear by calling <tt>Execute(Convert)</tt>,
+  which will return the code for the button which was pressed to close the dialog.
+  If the result is 'Y', we want to get the value from the edit box and put it
+  in a variable called Rate:</p>
+<pre>    when 'R' =>
+      if Execute(Convert) = 'Y' then
+        Rate := Float'Value(Get_Text(C_Edit));
+      end if;
+</pre>
+<p>Note that if the Set_Rate button is pressed again, the value that was entered
+  into the edit box will still be there unless it has been explicitly altered
+  by the program.</p>
+<p>The complete program looks like this:</p>
+<pre>  with GtkJewl.Simple_Windows;
+  use  GtkJewl.Simple_Windows;
+  procedure Currency_Converter is
+    My_Frame : Frame_Type := Frame (400, 150, "Currency Converter", 'Q');
+    Value    : Editbox_Type :=
+               Editbox (My_Frame, (10,10), 110, 20, "0");
+    Do_It    : Button_Type :=
+               Button (My_Frame, (40,40), 80, 25, "Convert", 'X');
+    Set_Rate : Button_Type :=
+               Button (My_Frame, (140,40), 80, 25, "Set Rate", 'R');
+    Result   : Label_Type :=
+               Label (My_Frame, (10,75), 0, 20, "", Centre);
+
+    Convert  : Dialog_Type :=
+               Dialog (200, 100, "Conversion Rate", 'Q');
+    C_Label  : Label_Type :=
+               Label (Convert, (10,10), 40, 25, "Rate:", Right);
+    C_Edit   : Editbox_Type :=
+               EditBox (Convert, (60,10), 100, 25, "1.00");
+    C_OK     : Button_Type :=
+               Button (Convert, (10,45) , 80, 25, "OK", 'Y');
+    C_Cancel : Button_Type :=
+               Button (Convert, (100,45) , 80, 25, "Cancel", 'Q');
+
+    Rate : Float := 1.00;
+    Val  : Float := 0.00;
+
+  begin
+    loop
+      case Next_Command is
+
+        when 'Q' =>
+          exit;
+
+        when 'R' =>
+          if Execute(Convert) = 'Y' then
+            Rate := Float'Value(Get_Text(C_Edit));
+          end if;
+
+        when 'X' =>
+          Val := Float(Integer'Value(Get_Text(Value)));
+          Set_Text (Result, Integer'Image(Integer(Val*Rate)));
+
+        when others =>
+          null;
+
+      end case;
+    end loop;
+  end Currency_Converter;</pre>
+<p>Again, improvements are left as an exercise for the reader...</p>
+<center>
+  <table width="75%" border="1" cellpadding="25" bgcolor="#FFCC66">
+    <tr bgcolor="#FFFF33">
+      <td>
+        <h4 align=center>Important note</h4>
+        <blockquote> Due to the way that dialogs are currently implemented,
+          you should not declare Dialog_Type objects in a library-level package
+          specification because this will prevent the program from terminating.
+          You should only ever declare them inside procedures or package bodies.
+          If necessary, you can declare a function in the package specification
+          which will return a copy of a dialog declared inside the package body.
+        </blockquote>
+      </td>
+    </tr>
+  </table>
+</center>
+<a name="2">
+<p>
+<hr>
+</a>
+<h2>2. The window type hierarchy</h2>
+<p>The available types of window are arranged in a class hierarchy, like this:</p>
+<pre>    Window_Type
+      |
+      +--- Container_Type (<a href="#3">3</a>)
+      |      |
+      |      +--- Frame_Type (<a href="#3.1">3.1</a>)
+      |      |
+      |      +--- Dialog_Type (<a href="#3.2">3.2</a>)
+      |      |
+      |      +--- Panel_Type (<a href="#3.3">3.3</a>)
+      |      |
+      |      +--- Menu_Type (<a href="#3.4">3.4</a>)
+      |
+      +--- Control_Type
+             |
+             +--- Text_Control_Type (<a href="#4.1">4.1</a>)
+             |      |
+             |      +--- Button_Type (<a href="#4.1.1">4.1.1</a>)
+             |      |
+             |      +--- Label_Type (<a href="#4.1.2">4.1.2</a>)
+             |      |
+             |      +--- Editbox_Type (<a href="#4.1.3">4.1.3</a>)
+             |      |
+             |      +--- Boolean_Control_Type (<a href="#4.2">4.2</a>)
+             |             |
+             |             +--- Menuitem_Type (<a href="#4.2.1">4.2.1</a>)
+             |             |
+             |             +--- Checkbox_Type (<a href="#4.2.2">4.2.2</a>)
+             |             |
+             |             +--- Radiobutton_Type (<a href="#4.2.3">4.2.3</a>)
+             |
+             +--- Multiline_Type (<a href="#4.3">4.3</a>)
+             |      |
+             |      +--- Listbox_Type (<a href="#4.3.1">4.3.1</a>)
+             |      |
+             |      +--- Combobox_Type (<a href="#4.3.2">4.3.2</a>)
+             |      |
+             |      +--- Memo_Type (<a href="#4.3.3">4.3.3</a>)
+             |
+             +--- Range_Type (<a href="#4.4">4.4</a>)
+             |      |
+             |      +--- Progress_Type (<a href="#4.4.1">4.4.1</a>)
+             |      |
+             |      +--- Scrollbar_Type (<a href="#4.4.2">4.4.2</a>)
+             |      |
+             |      +--- Scale_Type (<a href="#4.4.3">4.4.3</a>)
+             |      |
+             |      +--- Spinbutton_Type (<a href="#4.4.4">4.4.4</a>)
+             |
+             +--- Canvas_Type (<a href="#5">5</a>)
+</pre>
+<p>Each level in the hierarchy defines a set of operations which can be used with
+  any class descended from it in the hierarchy. For example, a button (<tt>Button_Type</tt>)
+  can be used with any operation which applies to <tt>Window_Type</tt>, <tt>Control_Type</tt>,
+  <tt>Text_Control_Type</tt> or <tt>Button_Type</tt> objects<a name="window-ops"></a>.</p>
+<p>The operations defined for <tt><a href="gtkjewl-windows.htm#Window_Type-1">Window_Type</a></tt>
+  can be applied to any window at all. These are as follows:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Show-1">Show</a> (Window, Visible)</tt></dt>
+    <dd>Make the specified window visible (Visible = True) or invisible (Visible
+      = False). The Visible parameter can be omitted, in which case the window
+      is made visible. When a window is made visible, it is also selected as the
+      active window. This is true even if the window is already visible, so <tt>Show</tt>
+      can also be used to select a window as the active window.</dd>
+    <dt><tt><br>
+      <a href="gtkjewl-windows.htm#Hide-1">Hide</a> (Window)</tt></dt>
+    <dd>This means the same as <tt>Show (Window, False)</tt>.</dd>
+    <dt><tt><br>
+      <a href="gtkjewl-windows.htm#Focus-1">Focus</a> (Window)</tt></dt>
+    <dd>Select the specified window as having the.input focus. Keyboard events
+      will be handled by the window which has the focus.</dd>
+    <dt><tt><br>
+      </tt></dt>
+    <dt><tt><a href="gtkjewl-windows.htm#Visible-1">Visible</a> (Window)</tt></dt>
+    <dd>Test if a window is visible. This is a function which returns a Boolean
+      result.</dd>
+    <dt><tt><br>
+      </tt></dt>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Origin-1">Get_Origin</a> (Window)</tt></dt>
+    <dd>Get the position of the top left corner of the specified window.</dd>
+    <dt><tt><br>
+      </tt></dt>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Width-1">Get_Width</a> (Window)</tt></dt>
+    <dd>Get the width of the specified window.</dd>
+    <dt><tt><br>
+      </tt></dt>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Height-1">Get_Height</a> (Window)</tt></dt>
+    <dd>Get the height of the specified window.</dd>
+    <dt><tt><br>
+      </tt></dt>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Origin-1">Set_Origin</a> (Window, Origin)</tt></dt>
+    <dd>Set the position of the top left corner of the specified window to the
+      specified point.</dd>
+    <dt><tt><br>
+      </tt></dt>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Size-1">Set_Size</a> (Window, Width, Height)</tt></dt>
+    <dd>Set the width and/or height of the specified window. The width and height
+      parameters are both optional, and the corresponding dimension will be left
+      unchanged if either of them are omitted.</dd>
+    <dt><tt><br>
+      </tt></dt>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Font-1">Get_Font</a> (Window, Font)</tt></dt>
+    <dd>Get the current font for the specified window. This is a function which
+      returns a result of type <tt>Font_Type</tt>. Fonts are described <a href="#2.1.1">later</a>.
+    </dd>
+    <dt><tt><br>
+      <a href="gtkjewl-windows.htm#Set_Font-1">Set_Font</a> (Window)</tt></dt>
+    <dd>Set the font used for displaying text in the specified window to the specified
+      font (a value of type <tt>Font_Type</tt>). </dd>
+    <dt><tt><br>
+      <a href="gtkjewl-windows.htm#Set_Action-1">Set_Action</a> (Window)</tt></dt>
+    <dd>Set new command for the action in the window, if set, rewrite. The action have to be init in inicialize type (ex. canvas without action, don't have efect) </dd>
+    <dt><tt><br>
+      <a href="gtkjewl-windows.htm#Disable_Action-1">Disable_Action</a> (Window)</tt></dt>
+    <dd>Delete the command in action, the event don't sent the command. </dd>
+    <dt><tt><br>
+      <a href="gtkjewl-windows.htm#Have_Action-1">Have_Action</a> (Window)</tt></dt>
+    <dd>Test if the window have command initialized. </dd>
+  </dl>
+</dl>
+<p>Note that in descriptions of operations like those above, the parameter names
+  shown are the names that can be used in named-parameter notation when calling
+  the operations:</p>
+<pre>    Show (W, True);                       -- make window W visible
+    Show (Window =&gt; W, Visible =&gt; True);  -- the same thing
+    Show (W, Visible =&gt; True);            -- the same thing again
+
+    Set_Size (W, Width=&gt;100);             -- set only the width of W
+    Set_Size (W, Height=&gt;100);            -- set only the height of W </pre>
+<p>Also, the name of each operation in its description is hyperlinked to its declaration
+  in the HTML version of the corresponding package specification, so that you
+  can view the formal specification of any operation by clicking on the link in
+  its description.</p>
+<p></p>
+<p>The intermediate types in the hierarchy (<tt>Window_Type</tt>, <tt>Container_Type</tt>,
+  <tt>Control_Type</tt>, <tt>Text_Control_Type</tt>, <tt>Boolean_Control_Type</tt>
+  and <tt>Multiline_Type</tt>) are abstract types which can't be used directly.
+  All other types provide <i>constructor functions</i> to create windows of the
+  appropriate type; for example, the <tt>Frame_Type</tt> constructor is a function
+  called <tt>Frame</tt>, the <tt>Button_Type</tt> constructor is a function called
+  <tt>Button</tt>, and so on.</p>
+<p>The basic categories of window are as follows:</p>
+<ul>
+  <li><b><a href="#3">Containers</a></b>: windows which can contain other windows.
+    <P>
+  </li>
+  <li><b><a href="#4.1">Text controls</a></b>: control windows which store a single
+    line of text.
+    <P></li>
+  <li><b><a href="#4.2">Boolean controls</a></b>: text controls which can be in
+    one of two states, checked or unchecked
+    <P>
+  </li>
+  <li><b><a href="#4.3">Multiline controls</a></b>: control windows which store
+    multiple lines of text.
+    <P>
+  </li>
+  <li><b><a href="#5">Canvases</a></b>: these are controls which can be used
+    as general-purpose drawing surfaces.
+    <P>
+  </li>
+</ul>
+<p>These are each described in more detail below<a name="2.1"></a>.</p>
+<h3>2.1 Support types</h3>
+<p>Additional support types are used within GtkJewl to represent fonts <tt>(Font_Type</tt>),
+  points (<tt>Point_Type</tt>), colours (<tt>Colour_Type</tt>) and angles (<tt>Angle_Type</tt>).
+  This section describes these types and the operations provided to handle them<a name="2.1.1"></a>.</p>
+<h4>2.1.1 Fonts</h4>
+<p>A font describes the typeface used to display text, and is defined as a type called
+  <tt><a href="gtkjewl-windows.htm#Font_Type-1">Font_Type</a></tt>. The following constructor function must be used
+  to create a font:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Font-1">Font</a> (Name, Size, Bold, Italic)</tt></dt>
+    <dd>Create a font with the specified typeface name and point size. The other
+      parameters set the bold and italic styles of the font; they are both optional,
+      and are False by default.</dd>
+  </dl>
+</dl>
+<p> There are two global fonts:</p>
+<ul>
+  <li><a href="gtkjewl-windows.htm#Default_Font-1">Default_Font</a>: a font used
+    when no other font has been specified. The standard package specification
+    defines this to be 9-point Sans..
+    <P></li>
+  <li><a href="gtkjewl-windows.htm#Parent_Font-1">Parent_Font</a>: a value that specifies
+    that a window should use the same font as its parent (that is, the container
+    window it is enclosed by).</li>
+</ul>
+<p>If no fonts are specified, top-level windows will use <tt>Default_Font</tt>
+  and all other windows will use the same font as their parents.<a name="2.1.2"></a></p>
+<dl>
+  <h4>2.1.2 Points</h4>
+</dl>
+<p>A point describes an (<i>x,y</i>) coordinate within a window. The coordinate
+  system is measured starting at the origin (0,0) in the top left corner of the
+  window, with the <i>x</i> coordinate giving the horizontal distance from the
+  origin and the <i>y</i> coordinate giving the vertical distance from the origin,
+  where the distances are measured in pixels. A point is an object of type <tt><a href="gtkjewl-windows.htm#Point_Type-1">Point_Type</a></tt>,
+  which is just a record with two integer components called <tt>X</tt> and <tt>Y</tt>.
+  The simplest way to construct a <tt>Point_Type</tt> object is to enclose two
+  integers in parentheses, using named notation if desired:</p>
+<pre>    (50,20)             -- a point 50 pixels across and 20 down
+    (X =&gt; 50, Y =&gt; 20)  -- the same thing</pre>
+<p>The following operations are provided for points:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Endpoint-1">Endpoint</a> (From, Length, Angle)</tt></dt>
+    <dd>Calculate the endpoint of a line drawn from the point <tt>From</tt> for
+      the specified length at the specified angle, and return the result as a
+      <tt>Point_Type</tt> value.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Inside-1">Inside</a> (Point, From, To)</tt></dt>
+    <dd>Test if the specified point is inside the rectangle bounded by the points
+      <tt>From</tt> and <tt>To</tt> and return a Boolean result, where <tt>From</tt>
+      and <tt>To</tt> represent any pair of diagonally opposed corners of the
+      bounding rectangle. The result is True if the point is inside the rectangle
+      and False otherwise.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Plus">P1 + P2</a></tt></dt>
+    <dd>Add the points P1 and P2. For example, (10,10) + (5,3) = (15,13).</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Minus">P1 &#150; P2</a></tt></dt>
+    <dd>Subtract the point P2 from P1. For example, (10,10) &#150; (5,3) = (5,7).
+      <a name="2.1.3"></a></dd>
+  </dl>
+</dl>
+<h4>2.1.3 Colours</h4>
+<p>A colour is represented as a triplet of values in the range 0 to 255 (as defined
+  by the subtype <tt><a href="gtkjewl-windows.htm#Colour_Range-1">Colour_Range</a></tt>)
+  representing an RGB colour. A colour is an object of type <tt><a href="gtkjewl-windows.htm#Colour_Type-1">Colour_Type</a></tt>,
+  which is just a record containing three values called <tt>Red</tt>, <tt>Green</tt>
+  and <tt>Blue</tt>. These represent the intensities of the individual hues making
+  up the colour. There are several predefined constants for common colours: <tt>Black</tt>,
+  <tt>White</tt>, <tt>Red</tt>, <tt>Green</tt>, <tt>Blue</tt>, <tt>Gray</tt>,
+  <tt>Yellow</tt>, <tt>Cyan</tt> and <tt>Magenta</tt>. The simplest way to construct
+  a <tt>Colour_Type</tt> object is to enclose three values in parentheses, using
+  named notation if desired:</p>
+<pre>    (255,255,0)			-- yellow (full intensity red and green together)
+    (Red =&gt; 255, Green =&gt; 255, Blue =&gt; 0)  -- the same thing</pre>
+<p>There are two operations provided for colours:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Light-1">Light</a> (Colour)</tt></dt>
+    <dd>Return a light version of the specified colour, e.g. <tt>Light(Blue)</tt>.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Dark-1">Dark</a> (Colour)</tt></dt>
+    <dd>Return a darker version of the specified colour, e.g. <tt>Dark(Green)</tt>.</dd>
+  </dl>
+</dl>
+<p>For the benefit of speakers of American English, the names <tt>Color_Type</tt>
+  and <tt>Color_Range</tt> are provided as renamings of <tt>Colour_Type</tt> and
+  <tt>Colour_Range</tt> respectively<a name="2.1.4">.</a></p>
+<h4>2.1.4 Angles</h4>
+<p>Angles are represented by values of type <tt><a href="gtkjewl-windows.htm#Angle_Type-1">Angle_Type</a></tt>,
+  which is a modular type with values in the range 0 to 359 representing an angle
+  in degrees. This gives a maximum angular resolution of one degree, which should
+  be adequate given the limitations of most display screens. Being a modular type,
+  you can perform arithmetic on <tt>Angle_Type</tt> values and the result will
+  &quot;wrap around&quot; to remain within the permitted range (although any value
+  directly assigned to an <tt>Angle_Type</tt> variable must already be in the
+  correct range), so that adding 270 degrees to 180 degrees will give a result
+  of 90 degrees rather than 450 degrees.</p>
+<p>There are four constants of type <tt>Angle_Type</tt> provided for the sake
+  of convenience: <tt>North</tt> (0), <tt>South</tt> (180), <tt>East</tt> (90)
+  and <tt>West</tt> (270)<a name="2.1.5"></a>.</p>
+<h4>2.1.5 Alignments</h4>
+<p>The type <tt><a href="gtkjewl-windows.htm#Alignment_Type-1">Alignment_Type</a></tt>
+  is sometimes used for specifying the horizontal alignment of text in a control.
+  There are three possible values: <tt>Left</tt>, <tt>Centre</tt>, and <tt>Right</tt>.
+  In all cases where an alignment can be specified, it is optional. The default
+  value when an alignment is omitted is <tt>Left</tt></p>
+<p>For the benefit of speakers of American English, the name <tt>Center</tt> is
+  provided as a renaming of <tt>Centre</tt><a name="2.1.6"></a>.</p>
+<h4>2.1.6 Images</h4>
+<p></p>
+<p>The type <tt><a href="gtkjewl-windows.htm#Image_Type-1">Image_Type</a></tt> is
+  a private type which can hold a bitmap image loaded from a file, which can be
+  displayed on a <a href="#5">canvas</a>. The operations provided for use with
+  images are as follows:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Image-1">Image</a> (Name)</tt></dt>
+    <dd>Return an image object containing a bitmap loaded from the file with the
+      specified name.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Valid-1">Valid</a> (Image)</tt></dt>
+    <dd>Test if the specified image object contains a valid bitmap.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Width-1">Width</a> (Image)</tt></dt>
+    <dd>Return the width of the specified image.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Height-1">Height</a> (Image)</tt></dt>
+    <dd>Return the width of the specified image<a name="2.2"></a>.</dd>
+  </dl>
+</dl>
+<p></p>
+<h3>2.2 Specifying window sizes and positions</h3>
+<p>Apart from frames and dialogs, all other windows are contained inside other
+  windows. The origin of the top-left corner of a window enclosed in another window
+  (the <b>parent window</b>) is a <tt>Point_Type</tt> value. This specifies an
+  offset from the top-left corner of the parent window when the coordinates are
+  non-negative. Negative coordinates specify an offset from the bottom or right
+  of the parent window; for example, an origin of (&#150;20,5) means an origin
+  located 20 pixels in from the right-hand edge of the parent window and 5 pixels
+  down from the top edge.</p>
+<p>Heights and widths can also be specified relative to the size of the parent
+  window. Positive values are used for absolute heights and widths, whereas zero
+  or negative values are taken to be relative to the height or width of the parent
+  window. Zero means the same height or width as the parent window, and a negative
+  value <i>&#150;n</i> means <i>n</i> pixels less than the corresponding dimension
+  of the parent window.</p>
+<p>Coordinates which are relative to the parent window are adjusted if the size
+  of the parent window changes. For example, a window with an origin of (5,&#150;50)
+  and a width of &#150;10 will be adjusted so that if the size of the parent window
+  is changed, the enclosed window will be adjusted so that it is still positioned
+  5 pixels from the left of the parent window's left edge, 50 pixels up from the
+  parent window's bottom edge, and the width will be 10 pixels less than the width
+  of the parent window.</p>
+<p>The following functions are provided to give the dimensions of the display
+  screen:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Screen_Width-1">Screen_Width</a></tt></dt>
+    <dd>A function which gives the width of the display screen.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Screen_Height-1">Screen_Height</a></tt></dt>
+    <dd>A function which gives the height of the display screen.</dd>
+    <dt>&nbsp;<a name="2.3"></a></dt>
+  </dl>
+</dl>
+<h3>2.3 Using the keyboard</h3>
+<p>The keyboard can be used instead of (or as well as) the mouse for interacting
+  with controls. Controls can be activated by clicking on them with the mouse,
+  but equivalent keyboard shortcuts can also be used.</p>
+<p>At any given moment, a particular control will be the "active" control and will
+  be visibly highlighted. The space bar will activate the current control if it is a
+  button or checkbox. The TAB key can be used to move to the next control
+  (where the ordering is defined by the order in which controls are created in
+  the program) and Shift-TAB can be used to move to the previous control. The
+  arrow keys can be used to move to the next radiobutton in a group
+  of radiobuttons, or to move between items in a menu.
+<p>In the case of buttons, checkboxes, radiobuttons and menu items, the text of
+  the control can include the character "&". This is not displayed, but instead
+  causes the next character to be displayed underlined (e.g. "&Cancel" will be
+  displayed as "<u>C</u>ancel").
+  Pressing ALT and the selected character (e.g. ALT-C in the previous example)
+  will activate the control.
+  <a name="2.4"></a></p>
+<h3>2.4 Message boxes and common dialogs</h3>
+<p>A message box is a dialog which can be used to notify the user of an error
+  or other information, or to ask a yes/no question. There are three operations
+  which display message boxes:</p>
+<table width="95%" border="0" cellspacing="10">
+  <tr> 
+    <td width="98%" valign="top"> <dl>
+        <dl>
+          <dt><tt><a href="gtkjewl-windows.htm#Show_Message-1">Show_Message</a> 
+            (Text, Title)</tt></dt>
+          <dd>Show an information message with an &quot;OK&quot; button and an 
+            information icon. <tt>Text</tt> is the text of the message which appears 
+            inside the dialog window, and <tt>Title</tt> is the title which appears 
+            in the window's title bar. The title can be omitted, in which case 
+            the title will be &quot;Message&quot;.</dd>
+        </dl>
+      </dl></td>
+    <td width="2%" valign="top"> <center>
+        <img src="message.gif" width="188" height="119" align="center"> </center></td>
+  </tr>
+  <tr> 
+    <td width="98%" valign="top"> <dl>
+        <dl>
+          <dt><tt><a href="gtkjewl-windows.htm#Show_Error-1">Show_Error</a> (Text, 
+            Title)</tt></dt>
+          <dd>Show an error message with an &quot;OK&quot; button and an error 
+            icon. <tt>Text</tt> is the text of the message which appears inside 
+            the dialog window, and <tt>Title</tt> is the title which appears in 
+            the window's title bar. The title can be omitted, in which case the 
+            title will be &quot;Error&quot;.</dd>
+        </dl>
+      </dl></td>
+    <td width="2%" valign="top"> <center>
+        <img src="error.gif" width="158" height="119" align="center"> </center></td>
+  </tr>
+  <tr> 
+    <td height="151" valign="top"><dl>
+        <dt>&nbsp;</dt>
+        <dd><tt><a href="gtkjewl-windows.htm#Show_Query-1">Show_Query</a> (Text, 
+          Title)</tt></dd>
+        <dd>Show a query message with a &quot;Yes&quot; button, a &quot;No&quot; 
+          button and an error icon. <tt>Text</tt> is the text of the message which 
+          appears inside the dialog window, and <tt>Title</tt> is the title which 
+          appears in the window's title bar. The title can be omitted, in which 
+          case the title will be &quot;Query&quot;. This is a function which returns 
+          a Boolean result, which will be True if the &quot;Yes&quot; button is 
+          pressed and False if the &quot;No&quot; button is pressed.</dd>
+      </dl></td>
+    <td valign="top"><img src="query.gif" width="185" height="119" align="center"></td>
+  </tr>
+  <tr> 
+    <td height="139" valign="top"> <dl>
+        <dl>
+          <dt><tt><a href="gtkjewl-io.htm#Error-1">Show_Warning</a> (Text)</tt></dt>
+          <dd><tt></tt>Show an warning message with an &quot;OK&quot; button and 
+            an warning icon. <tt>Text</tt> is the text of the message which appears 
+            inside the dialog window. The warning message is also echoed to the 
+            standard output.</dd>
+          <dt>&nbsp;</dt>
+        </dl>
+      </dl></td>
+    <td valign="top"> <center>
+        <img src="warning.gif" width="190" height="130" align="center"> </center></td>
+  </tr>
+</table>
+<p>GtkJewl also provides access to a selection of common dialogs which are available
+  as off-the-shelf components. These provide the following types of interaction:</p>
+<ul>
+  <li><a href="#6.1"><b>Colour dialogs</b></a>: dialogs to allow the user to select a colour</li>
+  <li><a href="#6.2"><b>Font dialogs</b></a>: dialogs to allow the user to select a font</li>
+  <li><a href="#6.3"><b>File dialogs</b></a>: dialogs to allow the user to select a file name, either
+    for opening an input file or for creating an output file.</li>
+</ul>
+<p>From a programming point of view, these have been designed to be used in a
+  similar way to handbuilt dialogs as described <a href="#3.2">below</a>, but
+  they are not part of the standard hierarchy of window types. Their use is described
+  in more detail <a href="#6">at the end of this document</a>.
+ <a name="2.5"></a></p>
+<h3>2.5 Playing sounds<tt></tt></h3>
+<p>A utility procedure <tt>Play_Sound</tt> is also provided to allow sounds stored
+  as wave (<tt>.WAV</tt>) files to be played. Sounds are played asynchronously
+  (i.e. the program does not wait for the sound to finish before continuing).
+  This procedure is used as follows:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Play_Sound-1">Play_Sound</a> (Sound)<font color="#FF0000">------LOSE FUNCTIONALITY</font></tt></dt>
+    <dd>Play the sound contained in the sound file whose name is given by the
+      String parameter <tt>Sound</tt>.</dd>
+  </dl>
+</dl>
+<p>If the file specified by the string <tt>Sound</tt> does not specify a valid
+  sound file, the procedure does nothing.</p>
+<a name="3">
+<p>
+<hr>
+</a>
+<h2>3. Containers</h2>
+<p>The operations defined for <tt><a href="gtkjewl-windows.htm#Container_Type-1">Container_Type</a></tt> can be applied to any window at all. These are as follows::</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Length_Type-1">Get_Length</a> (Container)</tt></dt>
+    <dd>A function which returns the length of the text associated with the control.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Text_Type-1">Get_Text</a> (Container)</tt></dt>
+    <dd>A function which returns the text associated with the control as a string.
+      You can find the length of the string by calling <tt>Get_Length</tt>, as
+      described above.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Text_Type-2">Get_Text</a> (Container, 
+      Text, Length)</tt></dt>
+    <dd>A procedure which gets the text of the control into the fixed-length string
+      variable <tt>Text</tt>. The number of characters copied is stored in the
+      variable <tt>Length</tt>. If the text is shorter than the string variable,
+      the text is copied into the beginning of it and the rest of it is unaffected.
+      If the text is longer than the string variable can accommodate, only as
+      much text as will fit will be copied.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Text_Type-1">Set_Text</a> (Container, 
+      Text)</tt></dt>
+    <dd>Store the specified text string in the control.<a name="4.1.1"></a></dd>
+  </dl>
+</dl><p>Containers are windows which can contain other windows. There are four types
+  of containers:</p>
+<ul>
+  <li><a href="#3.1"><b>Frames</b></a>: a frame is a top-level window with a title bar, a system
+    menu, and minimise, maximise and close buttons. Closing a frame generates
+    a command which the program can use to take any desired action (such as ending
+    the program).
+    <P>
+  </li>
+  <li><a href="#3.2"><b>Dialogs</b></a>: a dialog is a top-level window intended for use as a dialog
+    box. It is similar to a frame except that it cannot be resized, minimised
+    or maximised, and you cannot attach a menu to it.
+    <P>
+  </li>
+  <li><a href="#3.3"><b>Panels</b></a>: a panel is a subwindow which you can use to create groups
+    of controls within another window.
+    <P>
+  </li>
+  <li><a href="#3.4"><b>Menus</b></a>: a menu is a container for menuitems and submenus. Menus can
+    only be attached to frames or to other menus.<a name="3.1"></a></li>
+</ul>
+<h3><img src="frame.gif" width="150" height="100" align="right" hspace="15">3.1
+  Frames</h3>
+<p>A frame (type <tt><a href="gtkjewl-windows.htm#Frame_Type-1">Frame_Type</a></tt>)
+  is a top-level window intended for use as the main window of an application.
+  A frame is a container that other windows (controls etc.) can be attached to.
+  Subwindows of a frame are inserted into the client area of the frame (the sunken
+  area that it encloses) and all subwindow measurements are taken relative to
+  the boundaries of the client area.</p>
+<p>The operations that apply to frames are as follows, in addition to those <a href="#window-ops">operations
+  that apply to all windows</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt> and <tt>Set_Font</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Frame-2">Frame</a> (Height, Width, Title,
+      Command, Font)</tt></dt>
+    <dd>Construct a frame with the specified height and width. The title is displayed
+      in the title bar, and the frame generates the specified command when it
+      is closed. The height and width are the full height and width of the frame,
+      not just the height and width of the client area. The Font parameter is
+      optional, and a default font (specified by the global font variable Default_Font)
+      will be used if it is omitted. The position of the frame on the screen will
+      be chosen by the system.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Frame-1">Frame</a> (Origin, Height, Width, Title, Command, Font)</tt></dt>
+    <dd>As above, except that the window will be displayed with its top left corner
+      at the position on the screen specified by <tt>Origin</tt>.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Frame_Width-1">Frame_Width</a></tt></dt>
+    <dd>A function which gives the total width of the frame borders (i.e. the
+      difference in width between the frame width and the width of the client
+      area it encloses).</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Frame_Height1">Frame_Height</a></tt></dt>
+    <dd>A function which gives the total height of the frame borders and title
+      bar (i.e. the difference in height between the frame height and the height
+      of the client area it encloses).</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Valid-2">Valid</a> (Frame)</tt></dt>
+    <dd>A function which returns True if the frame has been created but has not
+      been closed, and False otherwise.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Close-1">Close</a> (Frame)</tt></dt>
+    <dd>Close the specified frame. The frame will disappear, and the Valid function
+      will return False after calling Close. This procedure has no effect if the
+      window is already closed.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Next_Command-1">Next_Command</a></tt></dt>
+    <dd>This is a parameterless function that waits until the next command code
+      is generated by any frame or any control within a frame. Its result is the
+      command code that has been generated.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Command_Ready-1">Command_Ready</a></tt></dt>
+    <dd>This is a parameterless function which returns True if a command is ready
+      to be processed.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Do_Events-1">Do_Events</a></tt></dt>
+    <dd>Execute pendings events for update GUI.</dd>
+    <dt><a name="3.2"></a></dt>
+  </dl>
+
+</dl>
+<h3><img src="dialog.gif" width="150" height="100" align="right" hspace="15">3.2
+  Dialogs</h3>
+<p>A dialog (type <tt><a href="gtkjewl-windows.htm#Dialog_Type-1">Dialog_Type</a></tt>)
+  is a top-level window intended for use in modal interactions with the user.
+  Dialogs are not normally visible except when they are being executed. Executing
+  a dialog makes the dialog window visible in the centre of the screen and disables
+  all other windows belonging to the application until a command is generated,
+  either by closing the dialog window or by generating a command from a control
+  enclosed by the dialog. Dialogs can be moved but unlike frames they cannot be
+  resized, minimised or maximised.</p>
+<p>The operations that apply to dialogs are as follows, in addition to those <a href="#window-ops">operations
+  that apply to all windows</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt> and <tt>Set_Font</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Dialog-1">Dialog</a> (Height, Width, Title, Command, Font)</tt></dt>
+    <dd>Construct a frame with the specified height and width. The title is displayed
+      in the title bar, and the frame generates the specified command when it
+      is closed. The height and width are the full height and width of the frame,
+      not just the height and width of the client area. The Font parameter is
+      optional, and a default font (specified by the global font variable Default_Font)
+      will be used if it is omitted.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Dialog_Width-1">Dialog_Width</a></tt></dt>
+    <dd>A function which gives the total width of the dialog borders (i.e. the
+      difference in width between the frame width and the width of the client
+      area it encloses).</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Dialog_Height-1">Dialog_Height</a></tt></dt>
+    <dd>A function which gives the total height of the dialog borders and title
+      bar (i.e. the difference in height between the frame height and the height
+      of the client area it encloses).</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Execute-1">Execute</a> (Dialog)</tt></dt>
+    <dd>A function which makes the dialog visible in the centre of the screen
+      and disables all other windows belonging to the application. When a command
+      is generated by closing the dialog or by using a control enclosed by the
+      dialog, the dialog is hidden and the command code is returned as the result
+      of the function.<a name="3.3"></a></dd>
+  </dl>
+</dl>
+<h3><img src="panel.gif" width="150" height="100" align="right" hspace="15">3.3
+  Panels</h3>
+<p>A panel (type <tt><a href="gtkjewl-windows.htm#Panel_Type-1">Panel_Type</a></tt>)
+  is a container intended for grouping controls together. A panel is not a top-level
+  window and therefore must be enclosed by another container.</p>
+<p>The only operation that applies to panels is the constructor function, in addition
+  to those <a href="#window-ops">operations that apply to all windows</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt> and <tt>Set_Font</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Panel-1">Panel</a> (Parent, Origin, Width, Height, Title, Font)</tt></dt>
+    <dd>Construct a panel enclosed by the specified parent container. The origin
+      is a point relative to the parent window; a negative X coordinate is taken
+      to be an offset from the parent's right border, a negative Y coordinate
+      is relative to the parent's lower border. The width and height are relative
+      to the parent width and height if they are not positive values (thus a value
+      of 0 for the width means the full width of the parent window, and a value
+      of -10 means 10 pixels less than the parent window). The title is displayed
+      in the panel border, as shown above. The font is optional; if it is omitted,
+      the parent window's font is used.<a name="3.4"></a></dd>
+  </dl>
+</dl>
+<h3><img src="menu.gif" width="200" height="100" align="right" hspace="15">3.4
+  Menus</h3>
+<p>Menus (type <tt><a href="gtkjewl-windows.htm#Menu_Type-1">Menu_Type</a></tt>)
+  are containers for menu items. Menus can only be attached to frames or to other
+  menus. A menu which is attached to a frame will appear on a menu bar above the
+  parent's client area, and a menu attached to a menu will appear as a menu item
+  with an arrowhead next to it, which will display a submenu when it is selected.
+  The font used for displaying menus cannot be changed. Any attempt to change
+  the font will be ignored, and the font will be reported as being the same as
+  the parent frame's font. Similarly, attempts to hide a menu will be ignored.</p>
+<p>The only operation that applies to menus is the constructor function, in addition
+  to those <a href="#window-ops">operations that apply to all windows</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt> and <tt>Set_Font</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Menu-1">Menu</a> (Parent, Text)</tt></dt>
+    <dd>Construct a menu attached to the specified parent, which must be either
+      a frame or another menu. The text is the menu label which will be displayed
+      on the frame's menu bar or on the parent menu. If the text includes the
+      ampersand character &quot;&amp;&quot;, the ampersand will not be displayed,
+      but the character which follows will be underlined and can be used with
+      the <tt>ALT</tt> key as a keyboard shortcut to activate the menu.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Menu_Height-1">Menu_Height</a></tt></dt>
+    <dd>A function which gives the height of a single-line menu bar attached to
+      a frame.</dd>
+  </dl>
+</dl>
+<a name="4"><p><hr></a>
+<h2>4. Controls</h2>
+<p>Controls are windows which provide for user interaction. They can be regarded
+  as a visual representation of an internal variable whose value can be accessed
+  and altered by the program. In most cases, the user of the program can also
+  interact with controls to change their values. Some controls (buttons, menu
+  items and canvases) can also generate command codes which will be returned as
+  the result of the <tt>Next_Command</tt> function (described in the section on
+  <a href="#3.1">frames</a>, above).</p>
+<p>Several types of controls are provided by GtkJewl: </p>
+<ul>
+  <li> <b><a href="#4.1">Text controls</a></b>: these all encapsulate a text string 
+    which can be accessed and altered by the program. 
+    <P> </li>
+  <li><b><a href="#4.2">Boolean controls</a></b>: these are all text controls 
+    which also encapsulate a Boolean value which can be accessed and altered by 
+    the program.</li>
+</ul>
+<ul>
+  <li><b><a href="#4.3">Multiline controls</a></b>: these are text controls which 
+    encapsulate an array of strings which can be accessed individually by specifying 
+    a line number.</li>
+</ul>
+<ul>
+  <li><b><a href="#4.4">Range controls</a></b>: these are text controls which 
+    encapsulate an array of strings which can be accessed individually by specifying 
+    a line number.</li>
+</ul>
+<ul>
+  <li><b><a href="#5">Canvases</a></b>: these are general-purpose drawing surfaces. 
+    A canvas can optionally generate a command when the mouse button is pressed, 
+    which enables the surface to be drawn on under the user's control as well 
+    as from within the program<a name="control-ops"></a>.</li>
+</ul>
+<p>All controls support the following operations, in addition to those <a href="#window-ops">operations
+  that apply to all windows</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt> and <tt>Set_Font</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Enable-1">Enable</a> (Control, Enabled)</tt></dt>
+    <dd>Enables the specified control if <tt>Enabled</tt> is True, or disables 
+      it if <tt>Enabled</tt> is False. The <tt>Enabled</tt> parameter can be omitted, 
+      in which case the control is enabled. Disabled controls will not interact 
+      with the user, and are usually &quot;grayed out&quot; to indicate when they 
+      are disabled. All controls are enabled by default.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Disable-1">Disable</a> (Control)</tt></dt>
+    <dd>This means the same as <tt>Enable (Control, False)</tt>.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Enabled-1">Enabled</a> (Control)</tt></dt>
+    <dd>Test if a control is enabled. This is a function which returns a Boolean 
+      result.</dd>
+  </dl>
+  <p><tt><img src="tooltip.gif" width="106" height="64"></tt></p>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Enable-1">Set_Tooltip</a> (Parent, Control, Text, Text_Private)</tt></dt>
+    <dd>Set the text and private text to an Control in the tooltip group from Parent.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Disable-1">Enable_Tooltip</a> (Control)</tt></dt>
+    <dd>The tooltip (or tooltip group) are visible.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Enabled-1">Disable_Tooltip</a> (Control)</tt></dt>
+    <dd>The tooltip (or tooltip group) are non visible.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Tooltip-1">Get_Tooltip</a> (Control, Enabled)</tt></dt>
+    <dd>Recover public or visible text of tooltip .</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Tooltip_Private-1">Get_Tooltip_Private</a> (Control)</tt></dt>
+    <dd>This means the same as <tt>Get_Tooltip, but recover private text</tt>.<a name="4.1"></a></dd>
+</dl>
+</dl>
+<h3>4.1 Text controls</h3>
+<p>Text controls contain a single string of text which can be inspected and altered
+  by the program. The types of text control available are as follows:</p>
+<ul>
+  <li><b><a href="#4.1.1">Buttons</a></b>: a button is a rectangular control with
+    a text label. When a button is pressed it generates a command code.
+    <P>
+  </li>  
+  <li><b><a href="#4.1.1">Action_Menuitem</a></b>: when a menuitem is pressed it generates a command code. 
+    <P>
+  </li>
+  <li><b><a href="#4.1.2">Labels</a></b>: a label is a non-interactive text item
+    which can be used to label other controls.
+    <P>
+  </li>
+  <li><b><a href="#4.1.3">Editboxes</a></b>: an editbox is a control which contains
+    a single line of text which can be edited by the user<a name="text-ops"></a>.
+  </li>
+</ul>
+<p>Text controls support the following operations, in addition to those <a href="#control-ops">operations
+  that apply to all controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>, <tt>Enable</tt>, <tt>Disable</tt>
+  and <tt>Enabled</tt><tt>, Set_Tooltip, Enable_Tooltip, Disable_Tooltip, Get_Tooltip, Get_Tooltip_Private</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Length-1">Get_Length</a> (Control)</tt></dt>
+    <dd>A function which returns the length of the text associated with the control.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Text-1">Get_Text</a> (Control)</tt></dt>
+    <dd>A function which returns the text associated with the control as a string.
+      You can find the length of the string by calling <tt>Get_Length</tt>, as
+      described above.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Text-2">Get_Text</a> (Control, Text,
+      Length)</tt></dt>
+    <dd>A procedure which gets the text of the control into the fixed-length string
+      variable <tt>Text</tt>. The number of characters copied is stored in the
+      variable <tt>Length</tt>. If the text is shorter than the string variable,
+      the text is copied into the beginning of it and the rest of it is unaffected.
+      If the text is longer than the string variable can accommodate, only as
+      much text as will fit will be copied.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Text-1">Set_Text</a> (Control, Text)</tt></dt>
+    <dd>Store the specified text string in the control.<a name="4.1.1"></a></dd>
+  </dl>
+</dl>
+<h4><img src="button.gif" width="200" height="125" align="right" hspace="15">4.1.1
+  Buttons</h4>
+<p>A button (type <tt><a href="gtkjewl-windows.htm#Button_Type-1">Button_Type</a></tt>)
+  is a control that generates a command when it is pressed.</p>
+<p>The only operation specific to buttons is the constructor function, in addition
+  to those <a href="#text-ops">operations that apply to all text controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>,
+  <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Length</tt>, <tt>Get_Text</tt>,<tt>Set_Text</tt><tt>, Set_Tooltip, Enable_Tooltip, Disable_Tooltip, Get_Tooltip, Get_Tooltip_Private</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Button-1">Button</a> (Parent, Origin, Width, Height, Text, Command, Default, Font)</tt></dt>
+    <dd> Construct a button enclosed by the specified parent container labelled
+      with the specified text. The origin is a point relative to the parent window;
+      a negative X coordinate is taken to be an offset from the parent's right
+      border, a negative Y coordinate is relative to the parent's lower border.
+      The width and height are relative to the parent width and height if they
+      are not positive values. If the <tt>Text</tt> parameter includes the ampersand
+      character &quot;&amp;&quot;, the ampersand will not be displayed, but the
+      character which follows will be underlined and can be used with the <tt>ALT</tt>
+      key as a keyboard shortcut to activate the button. <tt>Default</tt> is optional;
+      it is False by default, but if it is set True the button will be created
+      as a default button with a heavy border and can be activated by pressing
+      the Return key. The font is also optional; if it is omitted, the parent
+      window's font is used</dd>
+    <dt>    
+	<dt><tt><a href="gtkjewl-windows.htm#Menuitem-1">Action_Menuitem</a> (Parent, 
+      Text, Command)</tt></dt>
+    <dd>Construct a menu item attached to the specified parent menu. The <tt>Text</tt>
+      parameter is the text that will be displayed for the menu item, and <tt>Command</tt>
+      is the command code that will be returned when the menu item is selected.
+      If the text includes the ampersand character &quot;&amp;&quot;, the ampersand
+      will not be displayed, but the character which follows will be underlined
+      and can be used with the <tt>ALT</tt> key as a keyboard shortcut to activate
+      the menu item when the corresponding menu is visible.</dd>
+.<a name="4.1.2"></a></dt>
+  </dl>
+</dl>
+<h4><img src="label.gif" width="200" height="100" align="right" hspace="15">4.1.2
+  Labels</h4>
+<p>A label (type <tt><a href="gtkjewl-windows.htm#Label_Type-1">Label_Type</a></tt>)
+  is a static control that is not interactive. Labels cannot be enabled or disabled,
+  and any attempt to enable or disable a label is ignored.</p>
+<p> The only operation specific to labels is the constructor function, in addition
+  to those <a href="#text-ops">operations that apply to all text controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>,
+  <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Length</tt>, <tt>Get_Text</tt>
+  ,<tt> Set_Text, Set_Tooltip, Enable_Tooltip, Disable_Tooltip, Get_Tooltip, Get_Tooltip_Private</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Label-1">Label</a> (Parent, Origin, Width, Height, Text, Align, Font)</tt></dt>
+    <dd> Construct a label enclosed by the specified parent container labelled
+      with the specified text. The origin is a point relative to the parent window;
+      a negative X coordinate is taken to be an offset from the parent's right
+      border, a negative Y coordinate is relative to the parent's lower border.
+      The width and height are relative to the parent width and height if they
+      are not positive values. The <tt>Align</tt> parameter is optional, and specifies
+      the alignment of the text within the rectangle defined by the origin, height
+      and width. The possible options are <tt>Left</tt>, <tt>Centre</tt> and <tt>Right</tt>;
+      the default is <tt>Left</tt>. The font is optional; if it is omitted, the
+      parent window's font is used.<a name="4.1.3"></a></dd>
+  </dl>
+</dl>
+<h4><img src="editbox.gif" width="200" height="100" align="right" hspace="15">4.1.3
+  Editboxes</h4>
+<p>An editbox (type <tt><a href="gtkjewl-windows.htm#Editbox_Type-1">Editbox_Type</a></tt>)
+  is a control that allows you to interactively edit a single line of text. If
+  the length of the line exceeds the width of the visible box, the text will scroll
+  automatically as you move the cursor along it.</p>
+<p>The operations specific to editboxes are as follows, in addition to those <a href="#text-ops">operations
+  that apply to all text controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>,
+  <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Length</tt>, <tt>Get_Text</tt>
+  and <tt>Set_Text, Set_Tooltip, Enable_Tooltip, Disable_Tooltip, Get_Tooltip, Get_Tooltip_Private</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Editbox-1">Editbox</a> (Parent, Origin, Width, Height, Text, Password, Font)</tt></dt>
+    <dd> Construct an editbox enclosed by the specified parent container. The
+      origin is a point relative to the parent window; a negative X coordinate
+      is taken to be an offset from the parent's right border, a negative Y coordinate
+      is relative to the parent's lower border. The width and height are relative
+      to the parent width and height if they are not positive values. The value
+      of the <tt>Text</tt> parameter is the initial value displayed in the editbox;
+      if it is omitted, the editbox will initially be empty. <tt>Password</tt>
+      is an optional Boolean value which defaults to False; if it is set True,
+      the editbox displays all characters as asterisks for use in entering passwords
+      and other sensitive information which should not be displayed. The font
+      is also optional; if it is omitted, the parent window's font is used.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Modified-1">Modified</a> (Editbox)</tt></dt>
+    <dd>A function which returns True if the user has interactively modified the
+      text in the editbox since the last time this function was called<a name="4.2"></a>.</dd>
+  </dl>
+</dl>
+<h3>4.2 Boolean controls</h3>
+<p>Boolean controls are a subclass of text controls which also contain a Boolean
+  state which can be inspected and altered by the program. The types of Boolean
+  controls available are as follows:</p>
+<ul>
+  <li><b><a href="#4.2.1">Menu items</a></b>: these are controls which can only
+    be attached to menus (see the section on <a href="#3.4">menus</a>, above).
+    When selected they generate a command code. They can be set to be checked
+    or unchecked in a similar way to checkboxes, as described below.
+    <p>
+  </li>
+  <li><b><a href="#4.2.2">Checkboxes</a></b>: a checkbox is a labelled control
+    with a checkable box to the left of the label. The box will change between
+    the checked or unchecked states when it is selected.
+    <p>
+  </li>
+  <li><b><a href="#4.2.3">Radiobuttons</a></b>: a radiobutton is like a checkbox
+    except that only one radiobutton in a group enclosed by a container can be
+    checked at any one time. Selecting a radiobutton will change it to the checked
+    state if it is unchecked, and at the same time any other radiobuttons in the
+    same group will be unchecked<a name="bool-ops"></a>.</li>
+</ul>
+<p>Boolean controls support two extra operations, in addition to those <a href="#text-ops">operations
+  that apply to all text controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>,
+  <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Length</tt>, <tt>Get_Text</tt>
+  and <tt>Set_Text, Set_Tooltip, Enable_Tooltip, Disable_Tooltip, Get_Tooltip, Get_Tooltip_Private</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_State-1">Get_State</a> (Control)</tt></dt>
+    <dd>Get the Boolean state of the control (True if checked, False if unchecked).</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_State-1">Set_State</a> (Control, State)</tt></dt>
+    <dd>Set the control to the specified state (checked or unchecked, depending
+      on whether <tt>State</tt> is True or False)<a name="4.2.1"></a>.</dd>
+  </dl>
+</dl>
+<h4><img src="menuitem.gif" width="200" height="150" align="right" hspace="15">4.2.1
+  Menu items</h4>
+<p>A menu item (type <tt><a href="gtkjewl-windows.htm#Menuitem_Type-1">Menuitem_Type</a></tt>)
+  is a control which can only be attached to a menu. As with menus, you cannot
+  hide or change the font of a menu item, and the font will always be reported
+  as being the same as the parent frame's font. Menu items can be checked or unchecked;
+  when they are checked, a checkmark is displayed to the left of the text.</p>
+<p>The only operations on menu items are as follows, in addition to those <a href="#bool-ops">operations
+  that apply to all Boolean text controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>, <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>,
+  <tt>Get_Length</tt>, <tt>Get_Text</tt>, <tt>Set_Text</tt>, <tt>Get_State</tt>
+  and <tt>Set_State</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Menuitem-1">Menuitem</a> (Parent, Text, Command)</tt></dt>
+    <dd>Construct a menu item attached to the specified parent menu. The <tt>Text</tt>
+      parameter is the text that will be displayed for the menu item, and <tt>Command</tt>
+      is the command code that will be returned when the menu item is selected.
+      If the text includes the ampersand character &quot;&amp;&quot;, the ampersand
+      will not be displayed, but the character which follows will be underlined
+      and can be used with the <tt>ALT</tt> key as a keyboard shortcut to activate
+      the menu item when the corresponding menu is visible.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Menuitem-1">Check_Menuitem</a> (Parent, 
+      Text, Command, Checked)</tt></dt>
+    <dd>Construct a menu item attached to the specified parent menu. The <tt>Text</tt>
+      parameter is the text that will be displayed for the menu item, and <tt>Command</tt>
+      is the command code that will be returned when the menu item is selected.
+      If the text includes the ampersand character &quot;&amp;&quot;, the ampersand
+      will not be displayed, but the character which follows will be underlined
+      and can be used with the <tt>ALT</tt> key as a keyboard shortcut to activate
+      the menu item when the corresponding menu is visible.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Menuitem-1">Radio_Menuitem</a> (Parent, 
+      Text, Command, Checked)</tt></dt>
+    <dd>Construct a menu item attached to the specified parent menu. The <tt>Text</tt>
+      parameter is the text that will be displayed for the menu item, and <tt>Command</tt>
+      is the command code that will be returned when the menu item is selected.
+      If the text includes the ampersand character &quot;&amp;&quot;, the ampersand
+      will not be displayed, but the character which follows will be underlined
+      and can be used with the <tt>ALT</tt> key as a keyboard shortcut to activate
+      the menu item when the corresponding menu is visible.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Separator-1">Separator</a> (Parent)</tt></dt>
+    <dd>Construct a separator attached to the specified parent menu. A separator
+      is displayed as a horizontal bar which can be used to divide a menu into
+      sections. Separators are treated as menu items, but they cannot be enabled
+      or disabled and cannot be selected to generate a command<a name="4.2.2"></a>.</dd>
+  </dl>
+</dl>
+<h4><img src="checkbox.gif" width="200" height="100" align="right" hspace="15">4.2.2
+  Checkboxes</h4>
+<p>A checkbox (type <tt><a href="gtkjewl-windows.htm#Checkbox_Type-1">Checkbox_Type</a></tt>)
+  is a Boolean text control comprising a text label to the right of a box which
+  can be checked or unchecked interactively.</p>
+<p> The only operation specific to checkboxes is the constructor function, in
+  addition to those <a href="#bool-ops">operations that apply to all Boolean text
+  controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>, <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Length</tt>,
+  <tt>Get_Text</tt>, <tt>Set_Text</tt>, <tt>Get_State</tt> and <tt>Set_State</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Checkbox-1">Checkbox</a> (Parent, Origin, Width, Height, Text, Checked, Font)</tt></dt>
+    <dd> Construct a checkbox enclosed by the specified parent container labelled
+      with the specified text. If the <tt>Text</tt> parameter includes the ampersand
+      character &quot;&amp;&quot;, the ampersand will not be displayed, but the
+      character which follows will be underlined and can be used with the <tt>ALT</tt>
+      key as a keyboard shortcut to activate the checkbox. The origin is a point relative to the parent window;
+      a negative X coordinate is taken to be an offset from the parent's right
+      border, a negative Y coordinate is relative to the parent's lower border.
+      The width and height are relative to the parent width and height if they
+      are not positive values. The <tt>Checked</tt> parameter is optional, and
+      specifies the initial state of the checkbox. The default setting is False
+      (unchecked). The font is also optional; if it is omitted, the parent window's
+      font is used.<a name="4.2.3"></a></dd>
+  </dl>
+</dl>
+<h4><img src="radio.gif" width="200" height="100" align="right" hspace="15">4.2.3
+  Radiobuttons</h4>
+<p>A radiobutton (type <tt><a href="gtkjewl-windows.htm#Radiobutton_Type-1">Radiobutton_Type</a></tt>)
+  is a Boolean text control comprising a text label to the right of a box which
+  can be checked or unchecked interactively. Unlike a checkbox, a radiobutton's
+  state is related to the state of any other radiobuttons belonging to the same
+  group. A group of radiobuttons is created by adding consecutive radiobuttons
+  to the same container window. They must be added consecutively, because adding
+  any other type of control to a window will end the group.</p>
+<p> Selecting an unchecked radiobutton will set it to the checked state, and at
+  the same time will uncheck any checked radiobutton enclosed by the same container.
+  Selecting a checked radiobutton has no effect; the only way to uncheck a radiobutton
+  is by checking another one belonging to the same group (or by calling <tt>Set_State</tt>).</p>
+<p> The only operation specific to radiobuttons is the constructor function, in
+  addition to those <a href="#bool-ops">operations that apply to all Boolean text
+  controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>, <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Length</tt>,
+  <tt>Get_Text</tt>, <tt>Set_Text</tt>, <tt>Get_State</tt> and <tt>Set_State</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Radiobutton-1">Radiobutton</a> (Parent, 
+      Origin, Width, Height, Text, Checked, Font)</tt></dt>
+    <dd> Construct a radiobutton enclosed by the specified parent container labelled 
+      with the specified text. If the <tt>Text</tt> parameter includes the ampersand 
+      character &quot;&amp;&quot;, the ampersand will not be displayed, but the 
+      character which follows will be underlined and can be used with the <tt>ALT</tt> 
+      key as a keyboard shortcut to activate the radiobutton. The origin is a 
+      point relative to the parent window; a negative X coordinate is taken to 
+      be an offset from the parent's right border, a negative Y coordinate is 
+      relative to the parent's lower border. The width and height are relative 
+      to the parent width and height if they are not positive values. The <tt>Checked</tt> 
+      parameter is optional, and specifies the initial state of the radiobutton. 
+      The default setting is False (unchecked). The font is also optional; if 
+      it is omitted, the parent window's font is used<a name="4.3"></a>.</dd>
+    <h3>&nbsp;</h3>
+  </dl>
+</dl>
+<h3>4.3 Multiline controls</h3>
+<p>A multiline control is similar to a text control except that it can contain
+  multiple lines of text, one of which can be selected as the <i>current line</i>.
+  Lines can be referenced using a line number, where line 1 is the first line.
+  For convenience, you can also access the current line as line 0, assuming that
+  a line has been selected as the current line. Specifying the number of a non-existent
+  line will raise a <tt>Constraint_Error</tt> exception.</p>
+<p>The types of multiline control available are as follows:</p>
+<ul>
+  <li><b><a href="#4.3.1">Listboxes</a></b>: a listbox contains a list of lines
+    of text, and an individual line can be selected as the current line.
+    <p>
+  </li>
+  <li><b><a href="#4.3.2">Comboboxes</a></b>: a combobox is a combination of a
+    listbox and an editbox. The listbox part is a drop-down list from which you
+    can select an item to be copied into the editbox part of the control, or you
+    can type directly into the editbox part of the control.
+    <p>
+  </li>
+  <li><b><a href="#4.3.3">Memos</a></b>: a memo is a multiline text editor suitable
+    for general-purpose text editing<a name="multiline-ops"></a>.</li>
+</ul>
+<p>Multiline controls support the following operations, in addition to those <a href="#control-ops">operations
+  that apply to all controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>, <tt>Enable</tt>, <tt>Disable, </tt><tt>Enabled</tt><tt>, Set_Tooltip, Enable_Tooltip, Disable_Tooltip, Get_Tooltip, Get_Tooltip_Private</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Count-1">Get_Count</a> (Control)</tt></dt>
+    <dd>A function which returns the number of lines of text in the control.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Line-1">Get_Line</a> (Control)</tt></dt>
+    <dd>A function which returns the number of the currently selected line (or
+      zero if no line is selected).</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Length-3">Get_Length</a> (Control, Line)</tt></dt>
+    <dd>A function which returns the length of the text of the specified line.
+      The line number can be omitted, in which case it defaults to the current
+      line.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Text-4">Get_Text</a> (Control, Line)</tt></dt>
+    <dd>A function which returns the text of the specified line as a string. The
+      line number can be omitted, in which case it defaults to the current line.
+      You can find the length of the string by calling <tt>Get_Length</tt>, as
+      described above.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Text-5">Get_Text</a> (Control, Line,
+      Text, Length)</tt></dt>
+    <dd> A procedure which gets the text of the specified line into the fixed-length
+      string variable <tt>Text</tt>. The number of characters copied is stored
+      in the variable <tt>Length</tt>. If the text is shorter than the string
+      variable, the text is copied into the beginning of it and the rest of it
+      is unaffected. If the text is longer than the string variable can accommodate,
+      only as much text as will fit will be copied.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Text-3">Set_Text</a> (Control, Text,
+      Line)</tt></dt>
+    <dd> Set the text of the specified line to the specified value, replacing
+      the existing text. The line number can be omitted, in which case it defaults
+      to the current line.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Select_Line-1">Select_Line</a> (Control, Line)</tt></dt>
+    <dd> Select the specified line as the current line. If the line number is
+      specified as zero, no line will be selected (i.e. there will no longer be
+      a current line). The selected line is indicated visually in different ways
+      by different controls.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Append_Line-1">Append_Line</a> (Control, Text)</tt></dt>
+    <dd> Append a line containing the specified text to the end of the control.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Insert_Line-1">Insert_Line</a> (Control, Text, Line)</tt></dt>
+    <dd> Insert a new line of text above the specified line number. The line number
+      can be omitted, in which case it defaults to the current line. If there
+      is no current line, the text is appended to the end of the control.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Delete_Line-1">Delete_Line</a> (Control, Line)</tt></dt>
+    <dd> Delete the specified line. The line number can be omitted, in which case
+      it defaults to the current line.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Delete_All-1">Delete_All</a> (Control)</tt></dt>
+    <dd> Delete all the lines from the control.</dd>
+  </dl>
+</dl>
+<p>Individual types of multiline control interpret these operations in slightly
+  different ways, as described below<a name="4.3.1"></a>.</p>
+<h4><img src="listbox.gif" width="200" height="100" align="right" hspace="15">4.3.1
+  Listboxes</h4>
+<p>A listbox (type <tt><a href="gtkjewl-windows.htm#Listbox_Type-1">Listbox_Type</a></tt>)
+  is a list of text lines which will display a vertical scroll bar if the number
+  of lines exceeds the space available. You can select a line by clicking on it
+  with the mouse or by calling <tt>Select_Line</tt>, in which case it becomes
+  the control's current line and is highlighted on the display.</p>
+<p>The only operation specific to listboxes is the constructor function, in addition
+  to those <a href="#multiline-ops">operations that apply to all multiline controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>,
+  <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Count</tt>, <tt>Get_Line</tt>,
+  <tt>Get_Length</tt>, <tt>Get_Text</tt>, <tt>Set_Text</tt>, <tt>Select_Line</tt>,
+  <tt>Append_Line</tt>, <tt>Insert_Line</tt>, <tt>Delete_Line</tt> and <tt>Delete_All</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Listbox-1">Listbox</a> (Parent, Origin, Width, Height, Font)</tt></dt>
+    <dd>Construct a listbox enclosed by the specified parent container. The origin
+      is a point relative to the parent window; a negative X coordinate is taken
+      to be an offset from the parent's right border, a negative Y coordinate
+      is relative to the parent's lower border. The width and height are relative
+      to the parent width and height if they are not positive values. The font
+      is optional; if it is omitted, the parent window's font is used<a name="4.3.2"></a>.
+    </dd>
+  </dl>
+</dl>
+<h4><img src="combobox.gif" width="200" height="150" align="right" hspace="15">4.3.2
+  Comboboxes</h4>
+<p>A combobox (type <tt><a href="gtkjewl-windows.htm#Combobox_Type-1">Combobox_Type</a></tt>)
+  is a combination of an editbox and a listbox. The listbox is not normally visible;
+  it can be pulled down in a similar way to a menu by clicking on the button at
+  the right of the editbox. A line can be selected as the current line by pulling
+  down the listbox and selecting a line, or by calling <tt>Select_Line</tt>. The
+  editbox always contains the text of the current line for the control, and its
+  contents can always be accessed using 0 as the line number. If text is entered
+  directly into the editbox which does not match any of the values in the listbox,
+  it is treated as if there is no current line (<tt>Get_Line</tt> will return
+  zero).</p>
+<p>The only operation specific to comboboxes is the constructor function, in addition
+  to those <a href="#multiline-ops">operations that apply to all multiline controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>,
+  <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Count</tt>, <tt>Get_Line</tt>,
+  <tt>Get_Length</tt>, <tt>Get_Text</tt>, <tt>Set_Text</tt>, <tt>Select_Line</tt>,
+  <tt>Append_Line</tt>, <tt>Insert_Line</tt>, <tt>Delete_Line</tt> and <tt>Delete_All</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Combobox-1">Combobox</a> (Parent, Origin, Width, Editable, Font)</tt></dt>
+    <dd>Construct a listbox enclosed by the specified parent container. The origin
+      is a point relative to the parent window; a negative X coordinate is taken
+      to be an offset from the parent's right border, a negative Y coordinate
+      is relative to the parent's lower border. The width is relative to the parent
+      width if it is not positive. Unlike other controls, the height is determined
+      automatically and cannot be specified. If the <tt>Editable</tt> parameter
+      is True, the contents of the editbox can be edited directly; if it is False,
+      the user is only allowed to select values from the listbox. <tt>Editable</tt>
+      is optional, and is assumed to be True if it is omitted. The font is also
+      optional; if it is omitted, the parent window's font is used<a name="4.3.3"></a>.</dd>
+  </dl>
+</dl>
+<h4><img src="memo.gif" width="200" height="125" align="right" hspace="15">4.3.3
+  Memos</h4>
+<p>A memo (type <tt>Memo_Type</tt>) is a general-purpose text editor. Unlike other
+  multiline controls, the cursor can be positioned at an individual character
+  rather than selecting an entire line, and a block of text can be selected which
+  spans multiple lines (in which case the current position is taken to be the
+  beginning of the selection).</p>
+<p>Lines in a memo are handled slightly differently to other multiline controls.
+  The cursor is initially positioned at the start of the memo, which initially
+  contains no lines. As soon as any text is entered into this line, it becomes
+  the first line of the memo. Pressing the Return key ends the line and moves
+  on to the next line, but this also isn't counted as a line while it doesn't
+  contain any text. If the last line of a memo is blank it is not treated as a
+  line, but only as a placemarker for where the next line will go. Selecting a
+  line using <tt>Select_Line</tt> will move the cursor to the start of the selected
+  line. The current line will be reported as 0 if the cursor is positioned on
+  a blank line at the end of a memo.</p>
+<p>The operations specific to memos are as follows, in addition to those <a href="#multiline-ops">operations
+  that apply to all multiline controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>, <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>,
+  <tt>Get_Count</tt>, <tt>Get_Line</tt>, <tt>Get_Length</tt>, <tt>Get_Text</tt>,
+  <tt>Set_Text</tt>, <tt>Select_Line</tt>, <tt>Append_Line</tt>, <tt>Insert_Line</tt>,
+  <tt>Delete_Line</tt> and <tt>Delete_All</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Memo-1">Memo</a> (Parent, Origin, Width, Height, Font)</tt></dt>
+    <dd>create a memo inside a container, with top left coordinates relative to
+      the parent, the specified width and the specified height, using this font
+      (default: same as Parent).</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Show_Selection-1">Show_Selection</a> (Memo)</tt></dt>
+    <dd>Scroll the memo if necessary so that the current position is visible on
+      the screen.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Column-1">Get_Column</a> (Memo)</tt></dt>
+    <dd> Get the column position of the current selection, where the beginning
+      of the line is column 1 (corresponding to the index of the character within
+      the string returned by <tt>Get_Text</tt>).</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Cut_Selection-1">Cut_Selection</a> (Memo)</tt></dt>
+    <dd> Cut the currently selected text in the memo (if any) to the system clipboard.
+      This deletes the selected text if there is any.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Copy_Selection-1">Copy_Selection</a> (Memo)</tt></dt>
+    <dd> Copy the currently selected text in the memo (if any) to the system clipboard.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Paste_Selection-1">Paste_Selection</a> (Memo)</tt></dt>
+    <dd> Paste the contents of the system clipboard to the memo, replacing the
+      currently selected text. If no text is selection, the clipboard contents
+      are inserted at the current position.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Undo_Change-1">Undo_Change</a> (Memo)</tt></dt>
+    <dd> Undo the user's last change to the contents of the memo. Note that the
+      undo operation itself counts as a text change, so you can undo an undo operation.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Modified-2">Modified</a> (Memo)</tt></dt>
+    <dd>A function which returns True if the user has interactively modified the
+      text in the memo since the last time this function was called.</dd>
+  </dl>
+</dl>
+<dl>
+<a name="4.4" id="4.4"></a>
+<h3>4.4 Range controls</h3>
+<p>A range control are the control that maintain an value into a range of values. This object contain the value, and the top limits and the bottom limits (Min, Max). The group have some forms to represent the same information and get the value.</p>
+  <p>The types of multiline control available are as follows:</p>
+<ul>
+  <li><b><a href="#4.4.1">Progressbar</a></b>: a graphical form to represent a percentage.
+    <p>
+  </li>
+  <li><b><a href="#4.4.2">Scrollbar</a></b>: a graphical selectable value between a minimun an a maximun value. Without feedback the value.
+    <p>
+  </li>
+  <li><b><a href="#4.4.3">Scale</a></b>: a similar control that Scrollbar but, Scale show feedback text value to user.    
+    <p>
+  </li>
+  <li><b><a href="#4.4.4">Spinbutton</a></b>: a  text editing range control.
+  	<p>
+  </li>
+</ul>
+<p>Range controls support the following operations, in addition to those <a href="#control-ops">operations
+  that apply to all controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>, <tt>Enable</tt>, <tt>Disable</tt>
+  and <tt>Enabled, Set_Tooltip, Enable_Tooltip, Dis</tt><tt>able_Tooltip, Get_Tooltip, Get_Tooltip_Private</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_value-1">Set_value</a> (Range_Control, Val)</tt></dt>
+    <dd>Set value to range control, always between the range.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Min-1">Set_Min</a> (Range_Control, Val)</tt></dt>
+    <dd>Set Min limit and update or readjust.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Max-1">Set_Max</a> (Range_Control, Val)</tt></dt>
+    <dd>Set Max limit and update or readjust.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_value-1">Get_value</a> (Range_Control)</tt></dt>
+    <dd>Get actual value of range control .</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Min-1">Get_Min</a> (Range_Control)</tt></dt>
+    <dd>Get Min limit of range control .</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Max-1">Get_Max</a> (Range_Control)</tt></dt>
+    <dd>Get Max limit of range control .</dd>
+  </dl>
+</dl>
+<dl>
+<p>The types of range control available are as follows:<a name="4.4.1" id="4.4.1"></a></p>
+<h4><img src="progressbar.gif" width="124" height="54" align="right" hspace="15">4.4.1
+  Progressbar</h4>
+<p>The only operation specific to comboboxes is the constructor function, in addition
+  to those <a href="#control-ops">operations that apply to all controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>,
+  <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Count</tt>, <tt>Get_Line</tt>,
+  <tt>Get_Length</tt>, <tt>Get_Text</tt>, <tt>Set_Text</tt>, <tt>Select_Line</tt>,
+  <tt>Append_Line</tt>, <tt>Insert_Line</tt>, <tt>Delete_Line</tt> and <tt>Delete_All</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Progressbar-1">Progressbar</a> (Parent, Origin, Width, Height, Min, Max, Orientarion)</tt></dt>
+    <dd>Construct a progressbar enclosed by the specified parent container. The origin
+      is a point relative to the parent window; a negative X coordinate is taken
+      to be an offset from the parent's right border, a negative Y coordinate
+      is relative to the parent's lower border. The width is relative to the parent
+      width if it is not positive. <a name="4.4.2" id="4.4.2"></a></dd>
+    <dt>&nbsp;</dt>
+  </dl>
+</dl>
+<h4><img src="scrollbar.gif" width="37" height="115" align="right" hspace="15">4.4.2
+  Scrollbar</h4>
+<p>The only operation specific to comboboxes is the constructor function, in addition
+  to those <a href="#control-ops">operations that apply to all controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>,
+  <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Count</tt>, <tt>Get_Line</tt>,
+  <tt>Get_Length</tt>, <tt>Get_Text</tt>, <tt>Set_Text</tt>, <tt>Select_Line</tt>,
+  <tt>Append_Line</tt>, <tt>Insert_Line</tt>, <tt>Delete_Line</tt> and <tt>Delete_All</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#scrollbar-1">Scrollbar</a> (Parent, Origin, Width, Height, Min, Max, Step, Orientarion)</tt></dt>
+    <dd>Construct a progressbar enclosed by the specified parent container. The origin
+      is a point relative to the parent window; a negative X coordinate is taken
+      to be an offset from the parent's right border, a negative Y coordinate
+      is relative to the parent's lower border. The width is relative to the parent
+      width if it is not positive.<a name="4.4.3" id="4.4.3"></a></dd>
+    <dt>&nbsp;</dt>
+  </dl>
+</dl>
+<h4><img src="scale.gif" width="116" height="62" align="right" hspace="15">4.4.3
+  Scale</h4>
+<p>The only operation specific to comboboxes is the constructor function, in addition
+  to those <a href="#control-ops">operations that apply to all  controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>,
+  <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Count</tt>, <tt>Get_Line</tt>,
+  <tt>Get_Length</tt>, <tt>Get_Text</tt>, <tt>Set_Text</tt>, <tt>Select_Line</tt>,
+  <tt>Append_Line</tt>, <tt>Insert_Line</tt>, <tt>Delete_Line</tt> and <tt>Delete_All</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Scale-1">Scale</a> (Parent, Origin, Width, Height, Min, Max, Step, NDigits, Orientarion, Font)</tt></dt>
+    <dd>Construct a progressbar enclosed by the specified parent container. The origin
+      is a point relative to the parent window; a negative X coordinate is taken
+      to be an offset from the parent's right border, a negative Y coordinate
+      is relative to the parent's lower border. The width is relative to the parent
+      width if it is not positive. The font is also
+      optional; if it is omitted, the parent window's font is used<a name="4.4.4" id="4.4.4"></a>.</dd>
+    <dt>&nbsp;</dt>
+  </dl>
+</dl>
+<h4><img src="spinbutton.gif" width="97" height="30" align="right" hspace="15">4.4.4
+  Spinbutton</h4>
+<p>The only operation specific to comboboxes is the constructor function, in addition
+  to those <a href="#control-ops">operations that apply to all  controls</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt>, <tt>Set_Font</tt>,
+  <tt>Enable</tt>, <tt>Disable</tt>, <tt>Enabled</tt>, <tt>Get_Count</tt>, <tt>Get_Line</tt>,
+  <tt>Get_Length</tt>, <tt>Get_Text</tt>, <tt>Set_Text</tt>, <tt>Select_Line</tt>,
+  <tt>Append_Line</tt>, <tt>Insert_Line</tt>, <tt>Delete_Line</tt> and <tt>Delete_All</tt>):</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Spinbutton-1">Spinbutton</a> (Parent, Origin, Width, Height, Min, Max, Step, NDigits, Font)</tt></dt>
+    <dd>Construct a progressbar enclosed by the specified parent container. The origin
+      is a point relative to the parent window; a negative X coordinate is taken
+      to be an offset from the parent's right border, a negative Y coordinate
+      is relative to the parent's lower border. The width is relative to the parent
+      width if it is not positive.
+      <p>&nbsp;</p>
+    </dd>
+    </dl>
+</dl>
+</dl>
+<a name="5"><p>
+<hr>
+</a> 
+<h2><img src="canvas.gif" width="200" height="174" align="right" hspace="15">5. 
+  Canvases</h2>
+<p>A canvas (type <tt>Canvas_Type</tt>) is a general-purpose drawing surface which
+  can optionally generate a command code when the mouse button is pressed within
+  its boundaries or when a key is pressed. You can draw lines, rectangles, ellipses
+  and circles, general polygons and text in a mixture of colours, sizes and fonts.
+  Canvases support the <a href="#window-ops">operations that apply to all windows</a>
+  (<tt>Show</tt>, <tt>Hide</tt>, <tt>Focus</tt>, <tt>Visible</tt>, <tt>Get_Origin</tt>,
+  <tt>Get_Width</tt>, <tt>Get_Height</tt>, <tt>Set_Origin</tt>, <tt>Set_Size</tt>,
+  <tt>Get_Font</tt> and <tt>Set_Font</tt>)
+  in addition to the ones described below.</p>
+<p>There are three constructor functions to construct canvases which respond to
+  no events, mouse events only, or both mouse and keyboard events, as follows:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Canvas-1">Canvas</a> (Parent, Origin, 
+      Width, Height, Font, No_list)</tt></dt>
+    <dd>Construct a canvas enclosed by the specified parent container labelled 
+      with the specified text. The origin is a point relative to the parent window; 
+      a negative X coordinate is taken to be an offset from the parent's right 
+      border, a negative Y coordinate is relative to the parent's lower border. 
+      The width and height are relative to the parent width and height if they 
+      are not positive values. Mouse clicks and key presses are both ignored. 
+      The font is optional; if it is omitted, the parent window's font is used. 
+      No_List indicates than the list is not saved.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Canvas-2">Canvas</a> (Parent, Origin, 
+      Width, Height, Command, Font, No_list)</tt></dt>
+    <dd>Construct a canvas as above. The additional <tt>Command</tt> parameter 
+      specifies the command to be generated when the mouse button is pressed. 
+      Key presses are ignored. The font is optional; if it is omitted, the parent 
+      window's font is used. No_List indicates than the list is not saved.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Canvas-3">Canvas</a> (Parent, Origin, 
+      Width, Height, Command, Keypress, Font, No_list)</tt></dt>
+    <dd>Construct a canvas as above. The additional <tt>Keypress</tt> parameter 
+      is optional, and specifies the command to be generated when a key is pressed. 
+      If it's omitted, mouse clicks are ignored. The font is optional; if it is 
+      omitted, the parent window's font is used. No_List indicates than the list 
+      is not saved.</dd>
+    <dt><tt><br>
+      <a href="gtkjewl-windows.htm#Set_KeyAction-1">Set_KeyAction</a> (Canvas)</tt></dt>
+    <dd>Set new command for the action in the window, if set, rewrite. The action have to be init in inicialize type (ex. canvas without key press action, don't have efect) </dd>
+    <dt><tt><br>
+      <a href="gtkjewl-windows.htm#Disable_KeyAction-1">Disable_KeyAction</a> (Canvas)</tt></dt>
+    <dd>Delete the command in keyaction, the event don't sent the command. </dd>
+    <dt><tt><br>
+      <a href="gtkjewl-windows.htm#Have_KeyAction-1">Have_KeyAction</a> (Canvas)</tt></dt>
+    <dd>Test if the window have command initialized for key press event in canvas. </dd>
+  </dl>
+</dl>
+<p>Note that a command code for the mouse button must always be specified in addition
+  to the command code for key presses if the canvas is required to respond to
+  the keyboard.<a name="5.1"></a></p>
+<h3>5.1 Canvas properties</h3>
+<p>The background of the canvas is white by default, but you can select a different
+  colour at any time. A canvas also has a number of tools which are used when
+  you are drawing on it:</p>
+<ul>
+  <li><b>Pen</b>: the tool used for drawing lines on the canvas. A pen has a colour
+    and a width; the default pen is black, one pixel wide.<p></li>
+  <li><b>Fill colour</b>: the colour (if any) used to colour in closed shapes
+    such as rectangles and circles. By default, closed shapes are not filled.<p></li>
+  <li><b>Font</b>: the font used for drawing text on the canvas. The initial font
+    is the one specified when the canvas was created (the font for the parent
+    window if no font was specified)</li>
+</ul>
+<p>You can change any of these tools at any time, and you can use different pens,
+  fonts and fill colours at different times. Unlike other windows, changing these
+  tools will not affect objects that have already been drawn using a different
+  pen, font or fill colour; only objects that are drawn after the properties have
+  changed are affected. Closed shapes use both the pen and fill colour; the pen
+  is used to draw the perimeter of the shape, and the fill colour (if any) is
+  used to fill the interior of the shape</p>
+<p>These are the operations used to change the drawing tools:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Colour-1">Set_Colour</a> (Canvas, 
+      Colour, Paint)</tt></dt>
+    <dd>Set the background colour for the canvas to the specified colour. This 
+      will affect the entire background of the canvas. The colour is optional; 
+      if it is omitted, the default is white.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Pen-1">Set_Pen</a> (Canvas, Colour, 
+      Width)</tt></dt>
+    <dd>Set the pen used to draw lines on the canvas to the specified colour and 
+      width. A width of zero makes lines drawn with the pen invisible. Changing 
+      the pen will only affect lines drawn subsequently; existing lines are not 
+      affected. The colour and width are both optional; the colour defaults to 
+      black if it is omitted, and the width defaults to 1.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Fill-1">Set_Fill</a> (Canvas, Colour)</tt></dt>
+    <dd>Set the fill colour used to fill closed shapes to the specified colour. 
+      This will only affect closed shapes drawn subsequently; existing closed 
+      shapes are not affected. The colour can be omitted; if it is, the interior 
+      closed shapes will not be filled.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Font-2">Set_Font</a> (Canvas, Font)</tt></dt>
+    <dd>Set the font used to draw text on the canvas to the specified font. This 
+      will only affect text which is drawn subsequently; existing text is not 
+      affected.</dd>
+  </dl>
+</dl>
+<p>For the benefit of speakers of American English, the name <tt>Set_Color</tt> is
+  provided as a renaming of <tt>Set_Colour</tt><a name="5.2"></a>.</p>
+<h3>5.2 Drawing operations</h3>
+<p>Canvases provide a range of drawing operations. A sequence of drawing operations
+  can be interspersed with changes of drawing tools. These are the drawing operations
+  available:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Line-1">Draw_Line</a> (Canvas, From, 
+      To, Paint)</tt></dt>
+    <dd>Draw a line using the current pen between the points <tt>From</tt> and 
+      <tt>To</tt>.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Line-2">Draw_Line</a> (Canvas, From, 
+      Length, Angle, Paint)</tt></dt>
+    <dd>Draw a line using the current pen, starting at the point <tt>From</tt> 
+      for the specified length at the specified angle.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Line_List-1">Draw_Line_List</a> 
+      (Canvas, Points, Paint)</tt></dt>
+    <dd>Draw a sequence of lines connecting the specified points. <tt>Points</tt> 
+      is an array of points, e.g. ((0,0),&nbsp;(5,5),&nbsp;(10,0),&nbsp;(10,10),&nbsp;(0,10)). 
+      The entire sequence is treated as a single indivisible operation.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Rectangle-1">Draw_Rectangle</a> 
+      (Canvas, From, To, Rounding, Paint)</tt></dt>
+    <dd>Draw a rectangle with diagonally opposite corners at the points <tt>From</tt> 
+      and <tt>To</tt>. <tt>Rounding</tt> is an optional parameter which specifies 
+      the amount by which the corners are rounded (the default being no rounding), 
+      and specifies the distance from the corners in the X and Y directions where 
+      the rounded corners begin. The perimeter is drawn using the current pen, 
+      and the rectangle is filled in with the current colour.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Rectangle-2">Draw_Rectangle</a> 
+      (Canvas, From, Width, Height, Rounding, Paint)</tt></dt>
+    <dd>The same as above, except that the rectangle is drawn starting at the 
+      point <tt>From</tt> with the specified height and width.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Ellipse-1">Draw_Ellipse</a> (Canvas, 
+      From, To, Paint)</tt></dt>
+    <dd>Draw an ellipse bounded by the rectangle specified by the diagonally opposite 
+      corners at the points <tt>From</tt> and <tt>To</tt>. The perimeter is drawn 
+      using the current pen, and the ellipse is filled in with the current colour.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Ellipse-2">Draw_Ellipse</a> (Canvas, 
+      From, Width, Height, Paint)</tt></dt>
+    <dd>Draw an ellipse bounded by the rectangle specified by a corner at the 
+      point <tt>From</tt> and the specified height and width. The perimeter is 
+      drawn using the current pen, and the ellipse is filled in with the current 
+      colour.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Circle-1">Draw_Circle</a> (Canvas, 
+      Centre, Radius, Paint)</tt></dt>
+    <dd>Draw a circle with the specified radius whose centre is at the specified 
+      point. The perimeter is drawn using the current pen, and the circle is filled 
+      in with the current colour.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Polygon-1">Draw_Polygon</a> (Canvas, 
+      Points, Paint)</tt></dt>
+    <dd>Draw a polygon with vertices at the specified points. The points are specified 
+      as for <tt>Draw_Line_List</tt> (see above), but the last point is joined 
+      back to the first to form a closed shape. The perimeter is drawn using the 
+      current pen, and the polygon is filled in with the current colour.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Image-1">Draw_Image</a> (Canvas, 
+      From, Image, Paint)</tt></dt>
+    <dd>Draw the specified image starting at the point <tt>From</tt> as the top 
+      left corner.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Image-2">Draw_Image</a> (Canvas, 
+      From, To, Image, Paint)</tt></dt>
+    <dd>Draw the specified image, stretching it as necessary to fit in the rectangle 
+      which has the points <tt>From</tt> and <tt>To</tt> at diagonally opposite 
+      corners.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Image-3">Draw_Image</a> (Canvas, 
+      From, Width, Height, Image, Paint)</tt></dt>
+    <dd>Draw the specified image starting at the point <tt>From</tt> as the top 
+      left corner, stretching the bitmap as necessary to the specified width and 
+      height.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Text-1">Draw_Text</a> (Canvas, From, 
+      Text, Paint)</tt></dt>
+    <dd>Draw the specified text starting at the point <tt>From</tt> as the top 
+      left corner using the current font.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Text-2">Draw_Text</a> (Canvas, From, 
+      To, Text, Align, Paint)</tt></dt>
+    <dd>Draw the specified text in a rectangular region with diagonally opposite 
+      corners at the points <tt>From</tt> and <tt>To</tt> using the current font. 
+      The text will be clipped at the boundaries of the rectangle. The <tt>Align</tt> 
+      parameter is optional, and allows the text be be aligned <tt>Left</tt>, 
+      <tt>Centre</tt> or <tt>Right</tt> within the specified rectangle. The default 
+      alignment is <tt>Left</tt>.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Draw_Text-3">Draw_Text</a> (Canvas, From, 
+      Width, Height, Text, Align, Paint)</tt></dt>
+    <dd>The same as above, except that the bounding rectangle is taken to start 
+      at the point <tt>From</tt> with the specified height and width.</dd>
+  </dl>
+</dl>
+<p>Note that when text is drawn using Draw_Text, the rectangle within which it
+  is drawn is not erased; the text is drawn directly on top of any existing items
+  on the canvas. If you want to draw text on a blank background, you will need
+  to provide this by drawing a blank rectangle before drawing the text.<a name="5.3"></a></p>
+<h3>5.3 Modifying a drawing</h3>
+<p>When an object is drawn it normally becomes a permanent part of the canvas.
+  If you want to modify an existing drawing, you can erase the entire canvas and
+  redraw everything. A less drastic solution is to save a snapshot of the canvas
+  state and restore it to that state later, thus deleting everything drawn since
+  the snapshot was saved.</p>
+<p>The relevant operations are as follows:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Erase-1">Erase</a> (Canvas, Paint)</tt></dt>
+    <dd>Erase everything drawn on the canvas.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Save-1">Save</a> (Canvas)</tt></dt>
+    <dd>Save a snapshot of the current state of the canvas.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Restore-1">Restore</a> (Canvas, Paint)</tt></dt>
+    <dd>Restored the canvas to its state at the time of the last saved snapshot.
+      This erases the entire drawing if there is no saved snapshot to restore.</dd>
+  </dl>
+</dl>
+<p>Note that only one snapshot can be saved; using <tt>Save</tt> a second time
+  will destroy the previous snapshot. However, you can use <tt>Restore</tt> to
+  go back to the same saved state as many times as you wish. Also, note that the
+  saved snapshot will be destroyed if you call <tt>Erase</tt> (since you can't
+  revert to a previous state of a drawing after the drawing has been erased).</p>
+<p><tt>Save</tt> and <tt>Restore</tt> can be used where a drawing needs to be
+  modified, as for example in displaying an analogue clock. An analogue clock
+  can be implemented by drawing the clockface using <tt>Save</tt> to save the
+  state of the drawing, and then drawing the hands. Calling <tt>Restore</tt> will
+  then revert the drawing to the point where the clockface has been drawn but
+  the hands haven't, so the hands can then be drawn in a different position. Implementing
+  a clock like this just involves calling <tt>Restore</tt> and redrawing the hands
+  once a minute (or once a second if a second hand is used)<a name="5.4"></a>.</p>
+<h3>5.4 Handling user interaction</h3>
+<p>A canvas can generate a command when the mouse button is pressed within its
+  boundaries. This can be used to implement interactive drawing programs. There
+  are several operations available to let the program track the mouse while the
+  button is down:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Start_Point-1">Start_Point</a> (Canvas)</tt></dt>
+    <dd>A function which returns the coordinates of the point in the canvas where
+      the mouse button was pressed.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#End_Point-1">End_Point</a> (Canvas)</tt></dt>
+    <dd>A function which returns the current position of the mouse while the mouse
+      button is down. Once the mouse button has been released, it returns the
+      final position of the mouse (the coordinates of the point where the mouse
+      button was released). While the mouse button is pressed, the mouse position
+      is tracked even if the mouse goes outside the boundaries of the canvas.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Mouse_Down-1">Mouse_Down</a> (Canvas)</tt></dt>
+    <dd>A function which returns True while the mouse button is still down.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Mouse_Moved-1">Mouse_Moved</a> (Canvas)</tt></dt>
+    <dd>A function which returns True if the mouse has moved since the last time
+      <tt>End_Point</tt> was called to get the mouse position.</dd>
+  </dl>
+</dl>
+<p>These functions can be used in conjunction with <tt>Save</tt> and <tt>Restore</tt>
+  (see above) to track the mouse visually while the mouse button is down. For
+  example, by using <tt>Save</tt> to store the state of the drawing when the mouse
+  button is pressed, the saved state can be restored whenever the mouse is moved
+  and a line can be drawn between the start point and end point. The next time
+  the mouse is moved, the saved state will be restored again (thus deleting the
+  line) and a new line can be drawn:</p>
+<pre>    when Mouse_Pressed =&gt;
+      Save (Canvas);
+      while Mouse_Down (Canvas) loop
+        if Mouse_Moved (Canvas) then
+          Restore (Canvas);
+          Draw_Line (Canvas, Start_Point(Canvas), End_Point(Canvas));
+        end if;
+      end loop;
+      Restore (Canvas);</pre>
+<p>This gives a &quot;rubber-banding&quot; effect, where the mouse is followed
+  around by a line connecting the current position to the original point where
+  the mouse button was pressed. If <tt>Restore</tt> is called at the end of the
+  loop as shown above, the line will disappear when the mouse button is released.
+  If not, the line will remain as a permanent part of the drawing, and the next
+  time the mouse button is pressed the saved snapshot will be overwritten with
+  a new snapshot so that the line can no longer be deleted by calling <tt>Restore</tt>.</p>
+<p>The following function can be used to test for key presses:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Key_Code-1">Key_Code</a> (Canvas)</tt></dt>
+    <dd>This function<tt> </tt>returns the current character if a key has been
+      pressed. If it is called a second time before another key has been pressed,
+      or if the canvas has not been created to handle keyboard events, the function
+      returns the null character (ASCII.NUL).</dd>
+  </dl>
+</dl>
+<a name="6"><p><hr></a>
+<h2>6. Common dialogs</h2>
+<p>The dialogs described here are provided as standard off-the-shelf dialog boxes
+  for common interactions in much the same way as <a href="#2.4">message boxes</a>
+  are provided for displaying simple messages. They are as follows:</p>
+<p></p>
+<ul>
+  <li><a href="#6.1"><b>Colour dialogs</b></a>: dialogs to allow the user to select a colour</li>
+  <li><a href="#6.2"><b>Font dialogs</b></a>: dialogs to allow the user to select a font</li>
+  <li><a href="#6.3"><b>File dialogs</b></a>: dialogs to allow the user to select a file name, either
+    for opening an input file or for creating an output file.</li>
+</ul>
+<p>These are arranged in a type hierarchy as follows:</p>
+<pre>    Common_Dialog_Type
+      |
+      +--- Colour_Dialog_Type (<a href="#6.1">6.1</a>)
+      |
+      +--- Font_Dialog_Type (<a href="#6.2">6.2</a>)
+      |
+      +--- File_Dialog_Type (<a href="#6.3">6.3</a>)
+             |
+             +--- Open_Dialog_Type
+             |
+             <a name="common-ops"></a>+--- Save_Dialog_Type</pre>
+<p>All common dialogs provide the following operation:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Execute-1">Execute</a> (Dialog)</tt></dt>
+    <dd>Display the dialog and return True if the user closes it by pressing the
+      OK button, and False otherwise.</dd>
+  </dl>
+</dl>
+<p>They also provide dialog-specific operations to get and set the values stored
+  in the dialog. Typically the initial values will be set before the dialog is
+  executed, and the program will get the new value if <tt>Execute</tt> returned
+  True. The dialogs will also retain their values between calls to <tt>Execute</tt>
+  if they are not reset.</p>
+<p>Each of the different dialog types are described in more detail below<a name="6.1"></a>.</p>
+<h3>6.1 Colour dialogs</h3>
+<p>A colour dialog (type <tt><a href="gtkjewl-windows.htm#Colour_Dialog_Type-1">Colour_Dialog_Type</a></tt>)
+  provides a palette of standard colours that you can choose from, or you can
+  add your own custom colours to the palette. A colour dialog looks like this:</p>
+<p align="center"><img src="colordlg.gif" width="524" height="324"></p>
+<p>The operations that apply to colour dialogs are as follows, in addition to
+  the <tt>Execute</tt> operation described <a href="#common-ops">above</a>:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Colour_Dialog-1">Colour_Dialog</a></tt></dt>
+    <dd>Construct a colour dialog.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Colour-2">Set_Colour</a> (Dialog, Colour)</tt></dt>
+    <dd>Store the specified colour in the dialog. This colour will be selected
+      when the dialog is executed.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Colour-1">Get_Colour</a> (Dialog)</tt></dt>
+    <dd>Return the colour stored in the dialog.</dd>
+  </dl>
+</dl>
+<p>For the benefit of speakers of American English, the names <tt>Color_Dialog_Type</tt>,
+  <tt>Color_Dialog</tt>, <tt>Set_Color</tt> and <tt>Get_Color</tt> are provided
+  as renamings of <tt>Colour_Dialog_Type</tt>, <tt>Colour_Dialog</tt>, <tt>Set_Colour</tt>
+  and <tt>Get_Colour</tt> respectively.<a name="6.2"></a></p>
+<h3>6.2 Font dialogs</h3>
+<p>A font dialog (type <tt><a href="gtkjewl-windows.htm#Font_Dialog_Type-1">Font_Dialog_Type</a></tt>)
+  lets you select a font by selecting the desired name, size and style from a
+  list of available fonts. A font dialog looks like this:</p>
+<p align="center"><img src="fontdlg.gif" width="401" height="344"></p>
+<p>The operations that apply to font dialogs are as follows, in addition to the
+  <tt>Execute</tt> operation described <a href="#common-ops">above</a>:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Font_Dialog-1">Font_Dialog</a></tt></dt>
+    <dd>Construct a font dialog.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Font-3">Set_Font</a> (Dialog, Font)</tt></dt>
+    <dd>Store the specified font in the dialog. This font will be selected when
+      the dialog is executed.</dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Font-2">Get_Font</a> (Dialog)</tt></dt>
+    <dd>Return the font stored in the dialog.<a name="6.3"></a></dd>
+  </dl>
+</dl>
+<h3></h3>
+<h3>6.3 File dialogs</h3>
+<p>File dialogs allow you to select a filename to be opened for input or output.
+  There are two types of file dialog available:</p>
+<ul>
+  <li><b>Open dialogs</b> (type <tt><a href="gtkjewl-windows.htm#Open_Dialog_Type-1">Open_Dialog_Type</a></tt>):
+    select a filename for an input file.</li>
+  <li><b>Save dialogs</b> (type <tt><a href="gtkjewl-windows.htm#Save_Dialog_Type-1">Save_Dialog_Type</a></tt>):
+    select a filename for an output file.</li>
+</ul>
+<p>Both types of dialog look like this:</p>
+<p align="center"><img src="filedlg.gif" width="426" height="264"></p>
+<p>This is an Open dialog; the Save dialog looks exactly the same except
+  that the button labelled "Open" is replaced by a button labelled "Save".
+  They are functionally identical except for the types of file that can be selected.
+  In an Open dialog, only existing files can be selected; in a Save dialog, new
+  names can be typed in directly.</p>
+<p> The operations that apply to file dialogs are as follows, in addition to the
+  <tt>Execute</tt> operation described <a href="#common-ops">above</a>:</p>
+<dl>
+  <dl>
+    <dt><tt><a href="gtkjewl-windows.htm#Open_Dialog-1">Open_Dialog</a> (Title)</tt></dt>
+    <dd>Construct an Open File dialog, which will only allow you to select an 
+      existing file. 
+      <p></dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Save_Dialog-1">Save_Dialog</a> (Title, 
+      Create)</tt></dt>
+    <dd>Construct a Save File dialog. Create can be omitted; if it is True (the 
+      default) and you select an existing file, you will be asked to confirm that 
+      you wish to overwrite it before closing the dialog. If it is False and you 
+      enter the name of a file that does not already exist, you will be asked 
+      to confirm that you want to create it. The dialog does not actually create 
+      or overwrite the file; it just confirms your intentions before delivering 
+      the selected file name. 
+      <p></dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Name-1">Set_Name</a> (Dialog, 
+      Name)</tt></dt>
+    <dd>Store the specified filename in the dialog. This filename will be selected 
+      when the dialog is executed. 
+      <p></dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Get_Name-1">Get_Name</a> (Dialog)</tt></dt>
+    <dd>Return the filename stored in the dialog. 
+      <p></dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Add_Filter-1">Add_Filter</a> (Dialog, 
+      Text, Filter)<font color="#FF0000">------LOSE FUNCTIONALITY</font></tt></dt>
+    <dd>Add a filename filter to the dialog. Only files which match the selected 
+      filter will be displayed when the dialog is executed. More than one filter 
+      can be associated with a single dialog, and the user can choose between 
+      filters while the dialog is executing. The text is a description of the 
+      selected files, e.g. &quot;<tt>Bitmap files (*.bmp)</tt>&quot;, while the 
+      filter parameter is a file specification (e.g. &quot;<tt>*.bmp</tt>&quot;) 
+      or a list of file specifications separated by semicolons (e.g. &quot;<tt>*.bmp;*.rle</tt>&quot;). 
+    </dd>
+    <dt>&nbsp; </dt>
+    <dd>
+      <p></dd>
+    <dt><tt><a href="gtkjewl-windows.htm#Set_Directory-1">Set_Directory</a> (Dialog, 
+      Name)</tt></dt>
+    <dd>Set the initial directory for the dialog. If a directory with the specified 
+      name exists, it will be the initial directory displayed when the dialog 
+      is executed. If another directory is selected when the dialog is executed, 
+      it will be used as the initial directory the next time the dialog is executed 
+      unless <tt>Set_Directory</tt> is called again.</dd>
+    <dt>&nbsp;</dt>
+  </dl>
+</dl>
+</body>
+</html>
