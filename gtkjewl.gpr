@@ -1,5 +1,4 @@
-with "glib.gpr";
-with "gtk.gpr";
+with "gtkada.gpr";
 
 library project GtkJEWL
 is
