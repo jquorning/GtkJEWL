@@ -1,0 +1,9 @@
+name = "gtkjewl"
+description = "Shiny new project"
+version = "0.1.0-dev"
+
+authors = ["Jesper Quorning"]
+maintainers = ["Jesper Quorning <jesper.quorning@gmail.com>"]
+maintainers-logins = ["jquorning"]
+[[depends-on]]
+gtkada = "^23.0.0"
